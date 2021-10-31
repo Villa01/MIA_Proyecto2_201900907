@@ -1,0 +1,8 @@
+node_modules/
+
+# Cliente de oracle
+
+# Visual
+instantclient_21_3/
+
+cargamasiva.xml
