@@ -1,0 +1,366 @@
+{
+    "departamentos": {
+        "departamento": [
+            {
+                "nombre": {
+                    "_text": " Recruitment "
+                },
+                "capital_total": {
+                    "_text": " 50000 "
+                },
+                "puestos": {
+                    "puesto": [
+                        {
+                            "nombre": {
+                                "_text": " JEFE "
+                            },
+                            "salario": {
+                                "_text": " 30000 "
+                            },
+                            "categorias": {
+                                "categoria": [
+                                    {
+                                        "nombre": {
+                                            "_text": " humano "
+                                        }
+                                    },
+                                    {
+                                        "nombre": {
+                                            "_text": " social "
+                                        }
+                                    },
+                                    {
+                                        "nombre": {
+                                            "_text": " dinero "
+                                        }
+                                    },
+                                    {
+                                        "nombre": {
+                                            "_text": " exito "
+                                        }
+                                    }
+                                ]
+                            },
+                            "requisitos": {
+                                "requisito": [
+                                    {
+                                        "nombre": {
+                                            "_text": " Gusto musical "
+                                        },
+                                        "formatos": {
+                                            "formato": [
+                                                {
+                                                    "nombre": {
+                                                        "_text": " mp3 "
+                                                    }
+                                                },
+                                                {
+                                                    "nombre": {
+                                                        "_text": " mp4 "
+                                                    }
+                                                },
+                                                {
+                                                    "nombre": {
+                                                        "_text": " mkv "
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "tamaño": {
+                                            "_text": "25"
+                                        },
+                                        "obligatorio": {
+                                            "_text": "1"
+                                        }
+                                    },
+                                    {
+                                        "nombre": {
+                                            "_text": " Pasaporte "
+                                        },
+                                        "formatos": {
+                                            "formato": [
+                                                {
+                                                    "nombre": {
+                                                        "_text": " pdf "
+                                                    }
+                                                },
+                                                {
+                                                    "nombre": {
+                                                        "_text": " png "
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "tamaño": {
+                                            "_text": "15"
+                                        },
+                                        "obligatorio": {
+                                            "_text": "0"
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "nombre": {
+                                "_text": " Trainee "
+                            },
+                            "salario": {
+                                "_text": " 10000 "
+                            },
+                            "categorias": {
+                                "categoria": [
+                                    {
+                                        "nombre": {
+                                            "_text": " musica "
+                                        }
+                                    },
+                                    {
+                                        "nombre": {
+                                            "_text": " danza "
+                                        }
+                                    },
+                                    {
+                                        "nombre": {
+                                            "_text": " fama "
+                                        }
+                                    },
+                                    {
+                                        "nombre": {
+                                            "_text": " dinero "
+                                        }
+                                    }
+                                ]
+                            },
+                            "requisitos": {
+                                "requisito": [
+                                    {
+                                        "nombre": {
+                                            "_text": " Certificado en danza "
+                                        },
+                                        "formatos": {
+                                            "formato": [
+                                                {
+                                                    "nombre": {
+                                                        "_text": " pdf "
+                                                    }
+                                                },
+                                                {
+                                                    "nombre": {
+                                                        "_text": " png "
+                                                    }
+                                                },
+                                                {
+                                                    "nombre": {
+                                                        "_text": " jpg "
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "tamaño": {
+                                            "_text": "10"
+                                        },
+                                        "obligatorio": {
+                                            "_text": "1"
+                                        }
+                                    },
+                                    {
+                                        "nombre": {
+                                            "_text": " Album de fotos "
+                                        },
+                                        "formatos": {
+                                            "formato": [
+                                                {
+                                                    "nombre": {
+                                                        "_text": " png "
+                                                    }
+                                                },
+                                                {
+                                                    "nombre": {
+                                                        "_text": " jpg "
+                                                    }
+                                                },
+                                                {
+                                                    "nombre": {
+                                                        "_text": " jpeg "
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "tamaño": {
+                                            "_text": "45"
+                                        },
+                                        "obligatorio": {
+                                            "_text": "1"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "departamentos": {
+                    "departamento": {
+                        "nombre": {
+                            "_text": " musical group "
+                        },
+                        "capital_total": {
+                            "_text": " 100000 "
+                        },
+                        "puestos": {
+                            "puesto": {
+                                "nombre": {
+                                    "_text": " Rapper "
+                                },
+                                "salario": {
+                                    "_text": " 59999 "
+                                },
+                                "imagen": {
+                                    "_text": " https://alternative-storage.s3.us-east-2.amazonaws.com/rapper.jpg "
+                                },
+                                "categorias": {
+                                    "categoria": [
+                                        {
+                                            "nombre": {
+                                                "_text": " musica "
+                                            }
+                                        },
+                                        {
+                                            "nombre": {
+                                                "_text": " fama "
+                                            }
+                                        },
+                                        {
+                                            "nombre": {
+                                                "_text": " cool "
+                                            }
+                                        }
+                                    ]
+                                },
+                                "requisitos": {
+                                    "requisito": [
+                                        {
+                                            "nombre": {
+                                                "_text": " Certificado de lectura "
+                                            },
+                                            "formatos": {
+                                                "formato": {
+                                                    "nombre": {
+                                                        "_text": " pdf "
+                                                    }
+                                                }
+                                            },
+                                            "tamaño": {
+                                                "_text": "5"
+                                            },
+                                            "obligatorio": {
+                                                "_text": "0"
+                                            }
+                                        },
+                                        {
+                                            "nombre": {
+                                                "_text": " Video de audicion, 4 versos a eleccion "
+                                            },
+                                            "formatos": {
+                                                "formato": [
+                                                    {
+                                                        "nombre": {
+                                                            "_text": " mp4 "
+                                                        }
+                                                    },
+                                                    {
+                                                        "nombre": {
+                                                            "_text": " mkv "
+                                                        }
+                                                    },
+                                                    {
+                                                        "nombre": {
+                                                            "_text": " wmv "
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            "tamaño": {
+                                                "_text": "100"
+                                            },
+                                            "obligatorio": {
+                                                "_text": "1"
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                "nombre": {
+                    "_text": " Desarrollo "
+                },
+                "capital_total": {
+                    "_text": " 20000 "
+                },
+                "puestos": {
+                    "puesto": {
+                        "nombre": {
+                            "_text": " Desarrollador backend "
+                        },
+                        "salario": {
+                            "_text": " 4500 "
+                        },
+                        "imagen": {
+                            "_text": " https://dev-to-uploads.s3.amazonaws.com/i/zki4ndggcept7aaxpo3w.jpg "
+                        },
+                        "categorias": {
+                            "categoria": [
+                                {
+                                    "nombre": {
+                                        "_text": " software "
+                                    }
+                                },
+                                {
+                                    "nombre": {
+                                        "_text": " developer "
+                                    }
+                                },
+                                {
+                                    "nombre": {
+                                        "_text": " java "
+                                    }
+                                }
+                            ]
+                        },
+                        "requisitos": {
+                            "requisito": {
+                                "nombre": {
+                                    "_text": " Constancia de cursos aprobados con 200 creditos o mas "
+                                },
+                                "formatos": {
+                                    "formato": [
+                                        {
+                                            "nombre": {
+                                                "_text": " pdf "
+                                            }
+                                        },
+                                        {
+                                            "nombre": {
+                                                "_text": " png "
+                                            }
+                                        }
+                                    ]
+                                },
+                                "tamaño": {
+                                    "_text": "10"
+                                },
+                                "obligatorio": {
+                                    "_text": "0"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}

@@ -3,11 +3,16 @@ const express = require('express');
 const morgan = require('morgan');
 var mysql = require('mysql')
 const cors = require('cors');
+const bodyParser = require('body-parser');
+const convert = require('xml-js')
 
+const fileUpload = require('express-fileupload')
+fs = require('fs');
 
 //var oracledb = require('oracledb')
 const app = express();
-
+app.use(bodyParser.urlencoded());
+app.use(bodyParser.json());
 //oracledb.initOracleClient({libDir: './instantclient_21_3/'});
 /*
 try {
@@ -76,11 +81,278 @@ app.post('/login',async function(req, res){
         }
 
     });
-    
-    
-    
-
 });
+
+app.use(fileUpload())
+
+app.post('/subirxml', (req, res) => {
+    //console.log(req)
+    let EDFile = req.files.file
+    //console.log(EDFile)
+    fs.readFile(EDFile.name, "utf8", function (err, data) {
+        if (err) return res.status(500).send({ message: err })
+        //console.log(data)
+        //---aqui se convierte en un archivo JSON pero solo texto
+        let json = convert.xml2json(data, {compact:true, spaces:2})
+        //console.log("to json ->", json);
+        let obj_json = JSON.parse(json)
+        // //---AHORA AQUI EL TEXTO LO VUELVO OBJETO
+
+        procesar_departamento(obj_json.departamentos.departamento)
+        //procesar_departamento(obj_json.departamentos.departamento)
+        return res.status(200).send(obj_json)
+    });
+
+
+})
+
+app.post('/subirxml', (req, res) => {
+    //console.log(req)
+    let EDFile = req.files.file
+    //console.log(EDFile)
+    fs.readFile(EDFile.name, "utf8", function (err, data) {
+        if (err) return res.status(500).send({ message: err })
+        //console.log(data)
+        //---aqui se convierte en un archivo JSON pero solo texto
+        let json = convert.xml2json(data, {compact:true, spaces:2})
+        //console.log("to json ->", json);
+        let obj_json = JSON.parse(json)
+        // //---AHORA AQUI EL TEXTO LO VUELVO OBJETO
+
+        procesar_departamento(obj_json.departamentos.departamento)
+        procesar_departamento(obj_json.departamentos.departamento)
+        // array["taxonomy"]["page"].forEach(element => {
+        //     console.log(element["title"])
+        // });
+        return res.status(200).send(obj_json)
+    });
+
+
+})
+
+function procesar_departamento(departamento, padre) {
+    if (departamento.constructor === Array){
+        departamento.forEach( dep => {
+            let { nombre, capital_total, puestos, departamentos } = dep
+            console.log("---------- Departamento")
+            
+            console.log(nombre._text)
+            console.log(capital_total._text)
+            
+            // 1. Insertar el departamento
+            q = `select codigo_departamento from mia.departamento where nombre_departamento = '${nombre._text}';`
+            connection.query(q, function(err, result){
+                if (err) {
+                    console.log(`${nombre}, error.`)
+                } else if (result.length == 0) {
+                    peticion = `insert into mia.departamento (nombre_departamento, capital_total, departamento_padre) values('${nombre._text}', ${capital_total._text}, (select dep.codigo_departamento from (select * from mia.departamento) as dep where nombre_departamento = '${padre}'));`
+                    insert(peticion, nombre._text)
+                }
+            });
+
+            // 2. Insertar puestos
+            procesar_puesto(puestos.puesto, nombre._text)
+            // 3. Insertar subdepartamentos
+            if (departamentos){
+                procesar_departamento(departamentos.departamento)
+            }
+
+            
+        });
+    } else {
+        let { nombre, capital_total, puestos, departamentos } = departamento
+        console.log("---------- Departamento")
+        q = `select codigo_departamento from mia.departamento where nombre_departamento = '${nombre._text}';`
+        connection.query(q, function(err, result){
+            if (err) {
+                console.log(`${nombre}, error.`)
+            } else if (result.length == 0) {
+                peticion = `insert into mia.departamento (nombre_departamento, capital_total, departamento_padre) values('${nombre._text}', ${capital_total._text}, (select dep.codigo_departamento from (select * from mia.departamento) as dep where nombre_departamento = '${padre}'));`
+                insert(peticion, nombre._text)
+            }
+        });
+
+        procesar_puesto(puestos.puesto, nombre._text)
+        if (departamentos){
+            procesar_departamento(departamentos.departamento)
+        }
+        console.log(nombre._text)
+        console.log(capital_total._text)
+    }
+}
+
+function procesar_puesto(puesto, departamento) {
+    if ( puesto.constructor == Array ){
+        puesto.forEach( puest => {
+            console.log("---------- Puesto")
+            let { nombre, salario, categorias, requisitos, imagen } = puest
+            q = `select * from mia.puesto where nombre_puesto = '${nombre._text}'`;
+            connection.query(q, function(err, result){
+                if (err) {
+                    //console.log(`${nombre}, error.`)
+                    console.log(err)
+                } else if (result.length == 0) {
+                    peticion = `insert into mia.puesto (nombre_puesto, salario, codigo_departamento) values('${nombre._text}', ${salario._text}, (select dep.codigo_departamento from (select * from mia.departamento) as dep where nombre_departamento = '${departamento}'));`
+                    insert(peticion, nombre._text)
+                }
+            });
+
+            procesar_categoria(categorias.categoria, nombre._text)
+            procesar_requisito(requisitos.requisito,  nombre._text)
+            console.log(nombre._text)
+            console.log(salario._text)
+            //console.log(imagen._text)
+            
+        })
+    } else {
+        let { nombre, salario, categorias, requisitos } = puesto
+        console.log("---------- Puesto")
+
+        q = `select * from mia.puesto where nombre_puesto = '${nombre._text}'`;
+            connection.query(q, function(err, result){
+                if (err) {
+                    //console.log(`${nombre}, error.`)
+                    console.log(err)
+                } else if (result.length == 0) {
+                    peticion = `insert into mia.puesto (nombre_puesto, salario, codigo_departamento) values('${nombre._text}', ${salario._text}, (select dep.codigo_departamento from (select * from mia.departamento) as dep where nombre_departamento = '${departamento}'));`
+                    insert(peticion, nombre._text)
+                }
+            });
+
+        procesar_categoria(categorias.categoria, nombre._text)
+        procesar_requisito(requisitos.requisito, nombre._text)
+        console.log(salario._text)
+        console.log(nombre._text)
+    }
+}
+
+function procesar_categoria(categoria, puesto){
+    if (categoria.constructor === Array){
+                
+        categoria.forEach( categor => {
+            console.log("---------- Categoria")
+            let { nombre } = categor
+            console.log(nombre._text)
+            
+            connection.query(`select codigo_categoria from mia.categoria where nombre_categoria = '${nombre._text}';`, function(err, result){
+                if (err) {
+                    console.log(`${nombre}, error`)
+                } 
+                if (result.length == 0){
+                    peticion = `insert into mia.categoria(nombre_categoria) values ('${nombre._text}');`
+                    insert(peticion, nombre._text)
+                }
+                
+                insert(`insert into mia.puesto_categoria (codigo_puesto, codigo_categoria) select puest.codigo_puesto, cat.codigo_categoria from
+                        (select codigo_puesto from mia.puesto where puesto.nombre_puesto = '${puesto}' limit 1) as puest,
+                        (select codigo_categoria from mia.categoria where categoria.nombre_categoria = '${nombre._text}' limit 1) as cat;`, nombre._text)
+                
+            }); 
+        });
+    } else {
+        let { nombre } = categoria
+        console.log("---------- Categoria")
+        console.log(nombre._text)
+        // Insercion requisito
+        connection.query(`select codigo_categoria from mia.categoria where nombre_categoria = '${nombre._text}';`, function(err, result){
+            if (err) {
+                console.log(`${nombre}, error`)
+            } 
+            if (result.length == 0){
+                peticion = `insert into mia.categoria(nombre_categoria) values ('${nombre._text}');`
+                insert(peticion, nombre._text)
+            }
+            
+            insert(`insert into mia.puesto_categoria (codigo_puesto, codigo_categoria) select puest.codigo_puesto, cat.codigo_categoria from
+            (select codigo_puesto from mia.puesto where puesto.nombre_puesto = '${puesto}' limit 1) as puest,
+            (select codigo_categoria from mia.categoria where categoria.nombre_categoria = '${nombre._text}' limit 1) as cat;`, nombre._text)
+            
+        }); 
+    }
+}
+
+function procesar_requisito(requisito, puesto){
+    
+    if (requisito.constructor === Array){
+        requisito.forEach( req => {
+            let { nombre, formatos, tamaño, obligatorio } = req
+
+            console.log("---------- requisito")
+            console.log(nombre._text)
+            console.log(tamaño._text)
+            console.log(obligatorio._text)
+            // Insercion requisito
+            connection.query(`select codigo_requisito from mia.requisito where nombre_requisito = '${nombre._text}';`, function(err, result){
+                if (err) {
+                    console.log(`${nombre} ya se encuentra en la base de datos a`)
+                } 
+                if (result.length == 0){
+                    peticion = `insert into mia.requisito(nombre_requisito, size, obligatorio) values ('${nombre._text}', ${tamaño._text}, ${obligatorio._text});`
+                    insert(peticion, nombre._text)
+                }
+
+                insert(`insert into mia.puesto_requisito (codigo_puesto, codigo_requisito) select puest.codigo_puesto, req.codigo_requisito from
+                (select codigo_puesto from mia.puesto where puesto.nombre_puesto = '${puesto}' limit 1) as puest,
+                (select codigo_requisito from mia.requisito where requisito.nombre_requisito = '${nombre._text}' limit 1) as req;`, nombre._text)
+
+                
+            });
+            procesar_formato(formatos.formato, nombre._text)
+
+        })
+    } else {
+        
+        let { nombre, formatos, tamaño, obligatorio } = requisito
+        
+        console.log("---------- requisito")
+        console.log(nombre._text)
+        console.log(tamaño._text)
+        console.log(obligatorio._text)
+
+        connection.query(`select codigo_requisito from mia.requisito where nombre_requisito = '${nombre._text}';`, function(err, result){
+            if (err) {
+                console.log(`${nombre} ya se encuentra en la base de datos b`)
+            } 
+            if (result.length == 0){
+                peticion = `insert into mia.requisito(nombre_requisito, size, obligatorio) values ('${nombre._text}', ${tamaño._text}, ${obligatorio._text});`
+                insert(peticion, nombre._text)
+
+                insert(`insert into mia.puesto_requisito (codigo_puesto, codigo_requisito) select puest.codigo_puesto, req.codigo_requisito from
+                    (select codigo_puesto from mia.puesto where puesto.nombre_puesto = '${puesto}' limit 1) as puest,
+                    (select codigo_requisito from mia.requisito where requisito.nombre_requisito = '${nombre._text}' limit 1) as req;`, nombre._text)
+            }
+        });
+
+        procesar_formato(formatos.formato, nombre._text)
+    }
+    
+}
+
+function procesar_formato(formato, nombre_requisito){
+    if (formato.constructor === Array){
+        formato.forEach( format => {
+            let { nombre } = format
+            console.log("---------- formato")
+            console.log("Nombre ", nombre._text)
+            let peticion = `insert into mia.formato(nombre_formato) values ('${nombre._text}');`
+            insert(peticion, nombre._text)
+
+            // Llenar requisito_formato
+            insert(`insert into mia.requisito_formato (codigo_requisito, nombre_formato) select req.codigo_requisito, f.nombre_formato from(select codigo_requisito from mia.requisito where requisito.nombre_requisito = '${nombre_requisito}' limit 1) as req,(select nombre_formato from mia.formato where nombre_formato like '%${nombre._text}%' limit 1) as f;`, nombre._text)
+        });
+    } else {
+        let { nombre } = formato
+        console.log("---------- formato")
+        console.log("Nombre ", nombre._text)
+        let peticion = `insert into mia.formato(nombre_formato) values ('${nombre._text}');`
+        insert(peticion, nombre._text)
+        // Llenar requisito_formato
+        insert(`insert into mia.requisito_formato (codigo_requisito, nombre_formato) select req.codigo_requisito, f.nombre_formato from
+        (select codigo_requisito from mia.requisito where requisito.nombre_requisito = '${nombre_requisito}' limit 1) as req, 
+        (select nombre_formato from mia.formato where nombre_formato like '%${nombre._text}%' limit 1) as f;`, nombre._text)
+    }
+    
+}
 
 // Static files
 
@@ -103,5 +375,20 @@ async function doQuery ( sql, con ) {
         }
         console.log(result)
         return result
+    });
+}
+
+function insert (q, nombre){
+    connection.query(q, function(err, success){
+        if (err) {
+            if (err.code == 'ER_DUP_ENTRY'){
+                
+                console.log(`No se insertó, ${nombre} porque ya estaba en la base de datos. `)
+            } else {
+                console.log(err)
+            }
+        } else {
+            console.log(`${nombre} insertado `)
+        }
     });
 }
