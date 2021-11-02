@@ -93,9 +93,16 @@ app.use(fileUpload())
 
 app.post('/subirxml', (req, res) => {
     let EDFile = req.files.file
-    fs.readFile(EDFile.name, "utf8", function (err, data) {
+    EDFile.mv(path.resolve(`${__dirname}/Files/${EDFile.name}`), err => {
+        if (err){
+            console.log(err)
+        }
+    })
+    fs.readFile(`${__dirname}/Files/${EDFile.name}`, "utf8", function (err, data) {
         if (err) return res.status(500).send({ message: err })
+        console.log(data)
         let json = convert.xml2json(data, {compact:true, spaces:2})
+        console.log(json)
         let obj_json = JSON.parse(json)
 
         procesar_departamento(obj_json.departamentos.departamento)
@@ -108,8 +115,18 @@ app.post('/subirxml', (req, res) => {
 app.post('/mostarcarga', (req, res) => {
     
     let EDFile = req.files.file
-    fs.readFile(EDFile.name, "utf8", function (err, data) {
-        if (err) return res.status(500).send({ message: err })
+
+    EDFile.mv(path.resolve(`${__dirname}/Files/${EDFile.name}`), err => {
+        if (err){
+            console.log(err)
+        }
+    })
+
+    fs.readFile(path.resolve(`${__dirname}/Files/${EDFile.name}`), "utf8", function (err, data) {
+        if (err){
+            console.log(err)
+            return res.status(500).send({ message: err })
+        } 
 
         let json = convert.xml2json(data, {compact:true, spaces:2})
         let obj_json = JSON.parse(json)
@@ -158,6 +175,17 @@ app.get('/usuariosordenados', (req, res) => {
         }
     })
 });
+
+app.get('/puestos', (req, res) => {
+    consulta = 'select codigo_puesto, nombre_puesto, salario, nombre_departamento, imagen from mia.puesto left join mia.departamento on puesto.codigo_departamento = departamento.codigo_departamento;'
+    connection.query(consulta, (err, result) => {
+        if ( err) {
+            console.log(err)
+        } else {
+            res.status(200).send(result)
+        }
+    })
+})
 
 app.post('/crearusuario', (req, res) => {
 
@@ -333,8 +361,11 @@ function procesar_puesto(puesto, departamento) {
                     //console.log(`${nombre}, error.`)
                     console.log(err)
                 } else if (result.length == 0) {
-                    peticion = `insert into mia.puesto (nombre_puesto, salario, codigo_departamento) values('${nombre._text}', ${salario._text}, (select dep.codigo_departamento from (select * from mia.departamento) as dep where nombre_departamento = '${departamento}'));`
+                    imagen = imagen? `'${imagen._text}'`:'null'
+                    peticion = `insert into mia.puesto (nombre_puesto, salario, imagen,  codigo_departamento) values('${nombre._text}', ${salario._text},${imagen}, (select dep.codigo_departamento from (select * from mia.departamento) as dep where nombre_departamento = '${departamento}' limit 1));`
                     insert(peticion, nombre._text)
+                } else {
+                    // Ya existe   
                 }
             });
 
@@ -355,7 +386,7 @@ function procesar_puesto(puesto, departamento) {
                     //console.log(`${nombre}, error.`)
                     console.log(err)
                 } else if (result.length == 0) {
-                    peticion = `insert into mia.puesto (nombre_puesto, salario, codigo_departamento) values('${nombre._text}', ${salario._text}, (select dep.codigo_departamento from (select * from mia.departamento) as dep where nombre_departamento = '${departamento}'));`
+                    peticion = `insert into mia.puesto (nombre_puesto, salario, codigo_departamento) values('${nombre._text}', ${salario._text}, (select dep.codigo_departamento from (select * from mia.departamento) as dep where nombre_departamento = '${departamento}' limit 1));`
                     insert(peticion, nombre._text)
                 }
             });

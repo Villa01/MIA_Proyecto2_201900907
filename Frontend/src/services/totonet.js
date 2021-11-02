@@ -62,3 +62,7 @@ export async function buscarUsuario(usuario){
 export async function editarUsuarioReq(usuario){
     return await axios.post(`${urlApi}editarusuario`, usuario)
 }
+
+export async function obtenerPuestos(){
+    return await axios.get(`${urlApi}puestos`)
+}
