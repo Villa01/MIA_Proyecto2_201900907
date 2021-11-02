@@ -43,8 +43,8 @@ export async function login2(usuario, password){
     return await axios.post('http://localhost:5000/login', {usuario: usuario, password: password})
 }
 
-export async function getUsuarios(usuario, password){
-    return await axios.get(`${urlApi}usuarios`)
+export async function getUsuarios(orden){
+    return await axios.post(`${urlApi}usuarios`, orden)
 }
 
 export async function createUser(usuario){

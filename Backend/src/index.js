@@ -118,16 +118,44 @@ app.post('/mostarcarga', (req, res) => {
 
 })
 
-app.get('/usuarios', (req, res) => {
+app.post('/usuarios', (req, res) => {
+    const { order, filtro } = req.body
+    peticion = ''
+    if (filtro) {
+        if ( typeof(filtro) === 'string'){
+            peticion = `select nombre_usuario, cui, contrasenia, fecha_inicio, fecha_fin, activo, nombre_rol, nombre_departamento from mia.usuario 
+            left join mia.rol on mia.usuario.codigo_rol = mia.rol.codigo_rol
+            left join mia.departamento on mia.usuario.codigo_departamento = mia.departamento.codigo_departamento
+            where ${order} like '%${filtro}%';`
+        } else {
+            peticion = `select nombre_usuario, cui, contrasenia, fecha_inicio, fecha_fin, activo, nombre_rol, nombre_departamento from mia.usuario 
+            left join mia.rol on mia.usuario.codigo_rol = mia.rol.codigo_rol
+            left join mia.departamento on mia.usuario.codigo_departamento = mia.departamento.codigo_departamento
+            where ${order} = '${filtro}';`
+        }
+    } else {
+        peticion = `select nombre_usuario, cui, contrasenia, fecha_inicio, fecha_fin, activo, nombre_rol, nombre_departamento from mia.usuario 
+        left join mia.rol on mia.usuario.codigo_rol = mia.rol.codigo_rol
+        left join mia.departamento on mia.usuario.codigo_departamento = mia.departamento.codigo_departamento order by ${order};`
+    }
+    connection.query(peticion, (err, result) => {
+        if (err) {
+            console.log(err)
+        } else {
+            res.status(200).send(result)
+        }
+    })
+});
+
+app.get('/usuariosordenados', (req, res) => {
     connection.query(`select nombre_usuario, cui, contrasenia, fecha_inicio, fecha_fin, activo, nombre_rol, nombre_departamento from mia.usuario 
     left join mia.rol on mia.usuario.codigo_rol = mia.rol.codigo_rol
     left join mia.departamento on mia.usuario.codigo_departamento = mia.departamento.codigo_departamento;`, (err, result) => {
         if (err) {
             console.log(err)
         } else {
-            console.log(result)
+            res.status(200).send(result)
         }
-        res.status(200).send(result)
     })
 });
 
