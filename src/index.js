@@ -62,7 +62,7 @@ app.get('/', function (req, res){
 
 app.post('/login',async function(req, res){
     const { usuario, password } = req.body
-    peticion = `select contrasenia from mia.usuario where nombre_usuario = '${usuario}';`
+    peticion = `select contrasenia, codigo_rol from mia.usuario where nombre_usuario = '${usuario}';`
     
     await connection.query(peticion, function(err, result){
         if (err) {
@@ -70,13 +70,14 @@ app.post('/login',async function(req, res){
         }
 
         if (result === undefined || result.length == 0 ){
-            res.status(500).send({mensaje : "Credenciales incorrectas. "})
+            return res.status(500).send({mensaje : "Credenciales incorrectas. "})
         } else {
-            console.log(result)
             if (result[0].contrasenia == password){
-                res.status(200).send({mensaje : "Login correcto "})
+                r = {mensaje : "Login correcto ", tipo: result[0].codigo_rol, correcto: true}
+                res.setHeader('Content-Type', 'application/json')
+                return res.status(200).send(r)
             } else {
-                res.status(500).send({mensaje : "Credenciales incorrectas. "})
+                return res.status(500).send({mensaje : "Credenciales incorrectas. "})
             }
         }
 
@@ -86,48 +87,60 @@ app.post('/login',async function(req, res){
 app.use(fileUpload())
 
 app.post('/subirxml', (req, res) => {
-    //console.log(req)
     let EDFile = req.files.file
-    //console.log(EDFile)
     fs.readFile(EDFile.name, "utf8", function (err, data) {
         if (err) return res.status(500).send({ message: err })
-        //console.log(data)
-        //---aqui se convierte en un archivo JSON pero solo texto
         let json = convert.xml2json(data, {compact:true, spaces:2})
-        //console.log("to json ->", json);
         let obj_json = JSON.parse(json)
-        // //---AHORA AQUI EL TEXTO LO VUELVO OBJETO
 
         procesar_departamento(obj_json.departamentos.departamento)
-        //procesar_departamento(obj_json.departamentos.departamento)
         return res.status(200).send(obj_json)
     });
 
 
 })
 
-app.post('/subirxml', (req, res) => {
-    //console.log(req)
+app.post('/mostarcarga', (req, res) => {
+    
     let EDFile = req.files.file
-    //console.log(EDFile)
     fs.readFile(EDFile.name, "utf8", function (err, data) {
         if (err) return res.status(500).send({ message: err })
-        //console.log(data)
-        //---aqui se convierte en un archivo JSON pero solo texto
-        let json = convert.xml2json(data, {compact:true, spaces:2})
-        //console.log("to json ->", json);
-        let obj_json = JSON.parse(json)
-        // //---AHORA AQUI EL TEXTO LO VUELVO OBJETO
 
-        procesar_departamento(obj_json.departamentos.departamento)
-        procesar_departamento(obj_json.departamentos.departamento)
-        // array["taxonomy"]["page"].forEach(element => {
-        //     console.log(element["title"])
-        // });
+        let json = convert.xml2json(data, {compact:true, spaces:2})
+        let obj_json = JSON.parse(json)
         return res.status(200).send(obj_json)
     });
 
+})
 
+app.get('/usuarios', (req, res) => {
+    connection.query(`select nombre_usuario, cui, contrasenia, fecha_inicio, fecha_fin, activo, nombre_rol, nombre_departamento from mia.usuario 
+    left join mia.rol on mia.usuario.codigo_rol = mia.rol.codigo_rol
+    left join mia.departamento on mia.usuario.codigo_departamento = mia.departamento.codigo_departamento;`, (err, result) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log(result)
+        }
+        res.status(200).send(result)
+    })
+});
+
+app.post('/crearusuario', (req, res) => {
+
+    const { nombre_usuario,CUI, contrasenia, fecha_inicio, rol, departamento}  = req.body
+
+    connection.query(`insert into mia.usuario(nombre_usuario, cui, contrasenia, fecha_inicio, activo, codigo_rol, codigo_departamento) values ('${nombre_usuario}',${CUI},
+        '${contrasenia}', ${fecha_inicio}, true, (select codigo_rol from mia.rol where nombre_rol like '%${rol}%' limit 1),
+        (select codigo_departamento from mia.departamento where nombre_departamento like '%${departamento}%' limit 1)
+        );`, (err, result) => {
+        if (err) {
+            console.log(err)
+            res.status(500).send({mensaje:err})
+        } else {
+            res.status(200).send({mensaje:"Insertado correctamente"})
+        }
+    })
 })
 
 function procesar_departamento(departamento, padre) {
