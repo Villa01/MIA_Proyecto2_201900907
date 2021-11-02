@@ -136,7 +136,7 @@ app.post('/crearusuario', (req, res) => {
     const { nombre_usuario,CUI, contrasenia, fecha_inicio, rol, departamento}  = req.body
 
     connection.query(`insert into mia.usuario(nombre_usuario, cui, contrasenia, fecha_inicio, activo, codigo_rol, codigo_departamento) values ('${nombre_usuario}',${CUI},
-        '${contrasenia}', ${fecha_inicio}, true, (select codigo_rol from mia.rol where nombre_rol like '%${rol}%' limit 1),
+        '${contrasenia}', curdate(), true, (select codigo_rol from mia.rol where nombre_rol like '%${rol}%' limit 1),
         (select codigo_departamento from mia.departamento where nombre_departamento like '%${departamento}%' limit 1)
         );`, (err, result) => {
         if (err) {
@@ -150,7 +150,7 @@ app.post('/crearusuario', (req, res) => {
 
 app.post('/eliminarusuario', (req, res) => {
     const { nombre_usuario } = req.body
-    connection.query(`update mia.usuario set activo = false where nombre_usuario = '${nombre_usuario}';`,
+    connection.query(`update mia.usuario set activo = false, fecha_fin = curdate() where nombre_usuario = '${nombre_usuario}';`,
     (err, result)=>{
         if (err) {
             console.log(err)
@@ -160,6 +160,88 @@ app.post('/eliminarusuario', (req, res) => {
         }
     });
 });
+
+app.post('/buscarusuario', (req, res) => {
+    const { nombre_usuario } = req.body
+    connection.query(`select nombre_usuario, cui, contrasenia, fecha_inicio, fecha_fin, activo, nombre_departamento, nombre_rol from mia.usuario 
+    left join mia.departamento on mia.departamento.codigo_departamento = mia.usuario.codigo_departamento
+    left join mia.rol on mia.rol.codigo_rol = mia.usuario.codigo_rol
+    where nombre_usuario = '${nombre_usuario}';`,
+    (err, result)=>{
+        if (err) {
+            console.log(err)
+            res.status(500).send({mensaje:err})
+        } else { 
+            if (result.length >= 1){
+                let { 
+                    nombre_usuario,
+                    cui,
+                    contrasenia,
+                    fecha_inicio, 
+                    fecha_fin, 
+                    activo, 
+                    nombre_rol, 
+                    nombre_departamento
+                 } = result[0]
+
+                 res.status(200).send({
+                    nombre_usuario,
+                    cui,
+                    contrasenia,
+                    fecha_inicio, 
+                    fecha_fin, 
+                    activo, 
+                    nombre_rol, 
+                    nombre_departamento
+                 })
+            } else {
+                res.status(500).send({mensaje:"No se encontró el usuario"})
+            }
+        }
+    });
+});
+
+app.post('/editarusuario', (req, res) => {
+    let {
+        nombre_usuario, 
+        cui, 
+        contrasenia, 
+        fecha_inicio, 
+        activo,
+        fecha_fin, 
+        nombre_departamento, 
+        nombre_rol
+    } = req.body
+
+    if (!fecha_fin) {
+        fecha_fin = '0000-00-00'
+    }
+    if (!fecha_inicio){
+        fecha_inicio = '0000-00-00'
+    }
+
+
+    consulta = `update mia.usuario
+    set 
+    nombre_usuario = '${nombre_usuario}',
+    cui = ${cui},
+    contrasenia = '${contrasenia}',
+    fecha_inicio = '${fecha_inicio}',
+    fecha_fin = '${fecha_fin}',
+    activo = ${activo},
+    codigo_rol = (select codigo_rol from mia.rol where nombre_rol like '%${nombre_rol}%' limit 1),
+    codigo_departamento = (select codigo_departamento from mia.departamento where nombre_departamento like '%${nombre_departamento}%' limit 1)
+    where nombre_usuario = '${nombre_usuario}';`
+
+    connection.query(consulta, (err, result) => {
+        if ( err ) {
+            console.log(err)
+            res.status(500).send({msg : 'No se pudo actualizar el registro'})
+        } else {
+            res.status(200).send({msg: "Registro actualizado"})
+        }
+    })
+})
 
 function procesar_departamento(departamento, padre) {
     if (departamento.constructor === Array){

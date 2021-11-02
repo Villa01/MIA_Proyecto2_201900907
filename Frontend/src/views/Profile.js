@@ -6,6 +6,7 @@ import UploadComponent from "components/Utiles/UploadComponent";
 import Usuarios from "components/Utiles/Usuarios";
 import CrearUsuario from "components/Utiles/CrearUsuario";
 import EliminarUsuario from "components/Utiles/EliminarUsuario";
+import EditarUsuario from "components/Utiles/EditarUsuario";
 
 export default function Profile() {
   let nombre = localStorage.getItem("usuario")
@@ -73,12 +74,13 @@ export default function Profile() {
                 </div>
                 <div className="mt-10 py-10 border-t border-blueGray-200 text-center">
                   <div className="flex flex-wrap justify-center">
-                  <span className="text-xl font-bold block uppercase tracking-wide text-blueGray-600">
+                  <span className=" block tracking-wide text-blueGray-600">
                     <h3>Carga Masiva</h3>
                     
                       <UploadComponent></UploadComponent>
                       <CrearUsuario></CrearUsuario>
                       <EliminarUsuario></EliminarUsuario>
+                      <EditarUsuario></EditarUsuario>
                       <Usuarios></Usuarios>
                     </span>
                   </div>

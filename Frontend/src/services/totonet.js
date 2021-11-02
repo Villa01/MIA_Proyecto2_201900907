@@ -54,3 +54,11 @@ export async function createUser(usuario){
 export async function eliminarUser(usuario){
     return await axios.post(`${urlApi}eliminarusuario`, usuario)
 }
+
+export async function buscarUsuario(usuario){
+    return await axios.post(`${urlApi}buscarusuario`, usuario)
+}
+
+export async function editarUsuarioReq(usuario){
+    return await axios.post(`${urlApi}editarusuario`, usuario)
+}
