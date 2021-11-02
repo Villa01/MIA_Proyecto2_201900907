@@ -50,3 +50,7 @@ export async function getUsuarios(usuario, password){
 export async function createUser(usuario){
     return await axios.post(`${urlApi}crearusuario`, usuario)
 }
+
+export async function eliminarUser(usuario){
+    return await axios.post(`${urlApi}eliminarusuario`, usuario)
+}

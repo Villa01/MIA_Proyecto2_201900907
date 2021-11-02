@@ -62,7 +62,7 @@ app.get('/', function (req, res){
 
 app.post('/login',async function(req, res){
     const { usuario, password } = req.body
-    peticion = `select contrasenia, codigo_rol from mia.usuario where nombre_usuario = '${usuario}';`
+    peticion = `select contrasenia, codigo_rol, activo from mia.usuario where nombre_usuario = '${usuario}';`
     
     await connection.query(peticion, function(err, result){
         if (err) {
@@ -73,9 +73,14 @@ app.post('/login',async function(req, res){
             return res.status(500).send({mensaje : "Credenciales incorrectas. "})
         } else {
             if (result[0].contrasenia == password){
-                r = {mensaje : "Login correcto ", tipo: result[0].codigo_rol, correcto: true}
-                res.setHeader('Content-Type', 'application/json')
-                return res.status(200).send(r)
+                if (result[0].activo == 1){
+                    r = {mensaje : "Login correcto ", tipo: result[0].codigo_rol, correcto: true}
+                    res.setHeader('Content-Type', 'application/json')
+                    return res.status(200).send(r)
+                } else {
+                    r = {mensaje : "Usuario inactivo"}
+                    return res.status(500).send(r)
+                }
             } else {
                 return res.status(500).send({mensaje : "Credenciales incorrectas. "})
             }
@@ -142,6 +147,19 @@ app.post('/crearusuario', (req, res) => {
         }
     })
 })
+
+app.post('/eliminarusuario', (req, res) => {
+    const { nombre_usuario } = req.body
+    connection.query(`update mia.usuario set activo = false where nombre_usuario = '${nombre_usuario}';`,
+    (err, result)=>{
+        if (err) {
+            console.log(err)
+            res.status(500).send({mensaje:err})
+        } else { 
+            res.status(200).send({mensaje: "Usuario eliminado"})
+        }
+    });
+});
 
 function procesar_departamento(departamento, padre) {
     if (departamento.constructor === Array){

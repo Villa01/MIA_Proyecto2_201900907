@@ -5,6 +5,7 @@ import Footer from "components/Footers/Footer.js";
 import UploadComponent from "components/Utiles/UploadComponent";
 import Usuarios from "components/Utiles/Usuarios";
 import CrearUsuario from "components/Utiles/CrearUsuario";
+import EliminarUsuario from "components/Utiles/EliminarUsuario";
 
 export default function Profile() {
   let nombre = localStorage.getItem("usuario")
@@ -77,6 +78,7 @@ export default function Profile() {
                     
                       <UploadComponent></UploadComponent>
                       <CrearUsuario></CrearUsuario>
+                      <EliminarUsuario></EliminarUsuario>
                       <Usuarios></Usuarios>
                     </span>
                   </div>
