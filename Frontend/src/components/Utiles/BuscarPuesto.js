@@ -43,7 +43,7 @@ class BuscarPuesto extends Component{
 
     render(){
         return (
-        <div>
+        <div  style={{width:'50%'}}>
             <div>
                 <h2 className="font-semibold text-4xl text-blueGray-600">
                     Buscar un puesto
@@ -57,8 +57,10 @@ class BuscarPuesto extends Component{
                     value = {this.state.parametro}
                     onChange= {this.updateParametro}
                     ></input>
+                <br></br>
+                <br></br>
                 <button
-                    className="bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    className="bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded" style={{backgroundColor:'#262a5b', color:'white'}}
                     type="button"
                     onClick={this.buscarPuestos}
                     >Buscar puesto
@@ -76,13 +78,18 @@ class BuscarPuesto extends Component{
             
         {
             this.state.mostrar && (
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nombre del Puesto</th>
-                            <th>Salario</th>
-                            <th>Departamento</th>
-                            <th>Categoria</th>
+                <table >
+                    <thead style={{
+                    borderBottom: 'solid 3px blue',
+                    background: '#262a5b',
+                    color: 'white',
+                    fontWeight: 'bold',
+                  }}>
+                        <tr style={{padding:'10px'}}>
+                            <th style={{padding:'6px'}}>Nombre del Puesto</th>
+                            <th style={{padding:'6px'}}>Salario</th>
+                            <th style={{padding:'6px'}}>Departamento</th>
+                            <th style={{padding:'6px'}}>Categoria</th>
                         </tr>
                     </thead>
                     <tbody>

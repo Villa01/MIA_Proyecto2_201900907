@@ -39,7 +39,7 @@ class Usuarios extends Component {
         return (
             <div>
                 <div><p>{this.state.mostrar}</p></div>
-                <button className="btn btn-blue" onClick={this.handleClick}>Obtener usuarios</button>
+                
                 <div>
                     <p>Valor para filtrar</p>
                     <input 
@@ -63,6 +63,8 @@ class Usuarios extends Component {
                         <input type="radio" value="nombre_departamento" name="orden" /> Departamento
 
                 </div>
+                <button className="bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded" style={{backgroundColor:'#262a5b', color:'white', marginTop:'7px'}}
+                        onClick={this.handleClick}>Obtener usuarios</button>
                 {this.state.mostrar && (<table>
                     <thead>
                         <tr>

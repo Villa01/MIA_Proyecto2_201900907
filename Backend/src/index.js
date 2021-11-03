@@ -341,6 +341,25 @@ app.use('/filtropuestos', (req, res) => {
 
 })
 
+app.use('/calificarPuesto', (req, res) => {
+    let { calificacion, nombre_puesto } = req.body
+
+    consulta = `insert into mia.puesto_calificacion(codigo_puesto, codigo_calificacion, fecha) values (
+        (
+        select codigo_puesto from mia.puesto p where nombre_puesto like '%${nombre_puesto}%'
+        ),${calificacion}, now());`
+
+    connection.query(consulta, (err, result) => {
+        if(err){
+            console.log(err)
+            res.status(500).send({msg:err})
+        } else {
+            res.status(200).send({msg:'Insertado correctamente'})
+        }
+    })
+
+})
+
 function procesar_departamento(departamento, padre) {
     if (departamento.constructor === Array){
         departamento.forEach( dep => {

@@ -33,12 +33,12 @@ class CarouselPuestos extends Component{
 
     render() {
         return (
-        <div>
+        <div style={{width:'50%'}}>
         <h2 className="font-semibold text-4xl text-blueGray-600">
         Echa un vistazo a nuestros puestos!
         </h2>
         <br></br>
-        <Carousel stopOnHover={true} infiniteLoop={true} dynamicHeight={true} width="1200px" showArrows={true} axis = 'horizontal'>
+        <Carousel stopOnHover={true} infiniteLoop={true} dynamicHeight={true}showArrows={true} axis = 'horizontal'>
             {
                 this.state.puestos.map( puesto => {
                     return (

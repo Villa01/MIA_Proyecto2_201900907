@@ -42,7 +42,7 @@ class CalificarPuesto extends Component {
 
     render(){
         return (
-            <div>
+            <div style={{width:'50%'}}>
                 <h2 className="font-semibold text-4xl text-blueGray-600">
                     Calificar un puesto
                 </h2>
@@ -68,7 +68,7 @@ class CalificarPuesto extends Component {
                 </div>
                 
                 <button
-                    className="bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    className="bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded" style={{backgroundColor:'#262a5b', color:'white'}}
                     type="button"
                     onClick= {this.calificar}
                     >Calificar

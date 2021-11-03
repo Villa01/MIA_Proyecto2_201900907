@@ -7,6 +7,7 @@ import Footer from "components/Footers/Footer.js";
 import CarouselPuestos from "components/Utiles/CarouselPuestos";
 import BuscarPuesto from "components/Utiles/BuscarPuesto";
 import CalificarPuesto from "components/Utiles/CalificarPuesto";
+import AplicarPuesto from "components/Utiles/AplicarPuesto";
 
 export default function Index() {
   return (
@@ -53,9 +54,15 @@ export default function Index() {
       </section>
       <br></br>
       <section 
-        style={{display:'flex', justifyContent:'space-evenly'}}
+        style={{display:'flex', justifyContent:'space-evenly', alignItems:'center'}}
       >
         <CalificarPuesto></CalificarPuesto>
+      </section>
+      <br></br>
+      <section 
+        style={{display:'flex', justifyContent:'space-evenly'}}
+      >
+        <AplicarPuesto></AplicarPuesto>
       </section>
       
       <br></br>
