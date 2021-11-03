@@ -66,3 +66,7 @@ export async function editarUsuarioReq(usuario){
 export async function obtenerPuestos(){
     return await axios.get(`${urlApi}puestos`)
 }
+
+export async function filtrarPuestos(data){
+    return await axios.post(`${urlApi}filtropuestos`, data)
+}

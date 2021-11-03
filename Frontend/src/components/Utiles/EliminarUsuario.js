@@ -23,7 +23,7 @@ class EliminarUsuario extends Component {
             nombre_usuario : this.state.nombre_usuario
         }
         eliminarUser(usuario).then( resp => {
-            alert("Usuario creado correctamente")
+            alert("Usuario eliminado correctamente")
         }).catch( err => {
             console.log(err)
         })

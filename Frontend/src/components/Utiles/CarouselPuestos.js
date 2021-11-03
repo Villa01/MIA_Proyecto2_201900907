@@ -38,7 +38,7 @@ class CarouselPuestos extends Component{
         Echa un vistazo a nuestros puestos!
         </h2>
         <br></br>
-        <Carousel dynamicHeight={true} width="1200px" showArrows={true} axis = 'horizontal'>
+        <Carousel stopOnHover={true} infiniteLoop={true} dynamicHeight={true} width="1200px" showArrows={true} axis = 'horizontal'>
             {
                 this.state.puestos.map( puesto => {
                     return (

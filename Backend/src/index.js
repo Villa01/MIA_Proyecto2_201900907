@@ -299,6 +299,48 @@ app.post('/editarusuario', (req, res) => {
     })
 })
 
+
+app.use('/filtropuestos', (req, res) => {
+    let { parametro, campo } = req.body
+    let consulta = `select distinct nombre_puesto, salario, nombre_categoria, nombre_departamento
+    from mia.puesto, mia.puesto_categoria, mia.categoria, mia.departamento
+    where puesto.codigo_puesto = puesto_categoria.codigo_puesto and
+    puesto_categoria.codigo_categoria = categoria.codigo_categoria and 
+	departamento.codigo_departamento = puesto.codigo_departamento and
+    ${campo} like '%${parametro}%' group by nombre_puesto
+    ;`
+    if (typeof(parametro) == 'number'){
+        consulta = `select distinct nombre_puesto, salario, nombre_categoria, nombre_departamento
+        from mia.puesto, mia.puesto_categoria, mia.categoria, mia.departamento
+        where puesto.codigo_puesto = puesto_categoria.codigo_puesto and
+        puesto_categoria.codigo_categoria = categoria.codigo_categoria and 
+        departamento.codigo_departamento = puesto.codigo_departamento and
+        ${parametro} = %${campo} group by nombre_puesto%
+        ;`
+    }
+
+    if (!parametro || !campo ){
+        consulta = `select  nombre_puesto, salario, nombre_categoria, nombre_departamento
+        from mia.puesto, mia.puesto_categoria, mia.categoria, mia.departamento
+        where puesto.codigo_puesto = puesto_categoria.codigo_puesto and
+        puesto_categoria.codigo_categoria = categoria.codigo_categoria and
+        departamento.codigo_departamento = puesto.codigo_departamento and
+        departamento.codigo_departamento = puesto.codigo_departamento group by nombre_puesto
+        ;`
+    }
+    console.log(consulta)
+
+    connection.query(consulta, (err, result) => {
+        if (err){
+            console.log(err);
+            res.status(500).send({msg:err})
+        } else {
+            res.status(200).send({puestos: result})
+        }
+    })
+
+})
+
 function procesar_departamento(departamento, padre) {
     if (departamento.constructor === Array){
         departamento.forEach( dep => {
@@ -369,6 +411,13 @@ function procesar_puesto(puesto, departamento) {
                 }
             });
 
+            connection.query(`insert into mia.puesto_calificacion(codigo_puesto, codigo_calificacion, fecha) values(
+                (select codigo_puesto from mia.puesto where nombre_puesto like '%${nombre._text}%' limit 1),0, now());`, (err) => {
+                    if(err) {
+                        console.log(err)
+                    }
+                });
+
             procesar_categoria(categorias.categoria, nombre._text)
             procesar_requisito(requisitos.requisito,  nombre._text)
             console.log(nombre._text)
@@ -381,13 +430,20 @@ function procesar_puesto(puesto, departamento) {
         console.log("---------- Puesto")
 
         q = `select * from mia.puesto where nombre_puesto = '${nombre._text}'`;
-            connection.query(q, function(err, result){
-                if (err) {
-                    //console.log(`${nombre}, error.`)
+        connection.query(q, function(err, result){
+            if (err) {
+                //console.log(`${nombre}, error.`)
+                console.log(err)
+            } else if (result.length == 0) {
+                peticion = `insert into mia.puesto (nombre_puesto, salario, codigo_departamento) values('${nombre._text}', ${salario._text}, (select dep.codigo_departamento from (select * from mia.departamento) as dep where nombre_departamento = '${departamento}' limit 1));`
+                insert(peticion, nombre._text)
+            }
+        });
+
+        connection.query(`insert into mia.puesto_calificacion(codigo_puesto, codigo_calificacion, fecha) values(
+            (select codigo_puesto from mia.puesto where nombre_puesto like '%${nombre._text}%' limit 1),0, now());`, (err) => {
+                if(err) {
                     console.log(err)
-                } else if (result.length == 0) {
-                    peticion = `insert into mia.puesto (nombre_puesto, salario, codigo_departamento) values('${nombre._text}', ${salario._text}, (select dep.codigo_departamento from (select * from mia.departamento) as dep where nombre_departamento = '${departamento}' limit 1));`
-                    insert(peticion, nombre._text)
                 }
             });
 
