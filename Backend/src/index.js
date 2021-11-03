@@ -489,6 +489,38 @@ app.post('/upload', (req, res) => {
 
 })
 
+app.post('/aplicantes', (req, res) => {
+    // Verificacion de token
+    const token = req.headers['authorization']
+    if (token) {
+        jwt.verify(token, access_key, (err, user) => {
+            if(err){
+                console.log(`El token de acceso no es válido: ${token}`)
+                res.status(403).json({msg:'No autorizado'})
+            } else {
+                
+                const { usuario } = req.body
+                let qu = `select a.nombre, a.apellido, a.correo, a.apellido, a.direccion, a.fecha_aplicacion, a.cui, a.telefono, a.cv from mia.aplicante a
+                inner join mia.usuario u on u.nombre_usuario = a.nombre_usuario
+                where u.nombre_usuario = '${usuario}';`
+                console.log(qu)
+                connection.query(qu, (err, result) => {
+                    if(err) {
+                        console.log(err)
+                        res.status(500).json({msg:'err'})
+                    } else {
+                        res.status(200).json({aplicantes: result})
+                    }
+                })
+            }
+        })
+    } else {
+        console.log(`El token de acceso no es válido: ${token}`)
+        res.status(403).json({msg:'No autorizado'})
+    }
+
+})
+
 function procesar_departamento(departamento, padre) {
     if (departamento.constructor === Array){
         departamento.forEach( dep => {
@@ -743,16 +775,6 @@ app.listen(app.get('port'), ()=>{
 
 // Database
 
-async function doQuery ( sql, con ) {
-    
-    return await con.query(sql, function(err, result){
-        if (err) {
-            console.log(err)
-        }
-        console.log(result)
-        return result
-    });
-}
 
 function insert (q, nombre){
     connection.query(q, function(err, success){

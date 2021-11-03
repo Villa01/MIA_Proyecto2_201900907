@@ -8,7 +8,7 @@ import CrearUsuario from "components/Utiles/CrearUsuario";
 import EliminarUsuario from "components/Utiles/EliminarUsuario";
 import EditarUsuario from "components/Utiles/EditarUsuario";
 import { autenticacion } from "services/totonet";
-import { refrescarToken } from "services/totonet";
+import { obtenerNuevoToken } from "services/totonet";
 
 export default function Profile() {
 
@@ -18,14 +18,7 @@ export default function Profile() {
     alert(`Tokens autenticados para ${res.data.usuario}`)
     nombre = res.data.usuario
   }).catch( err => {
-    refrescarToken(window.localStorage.getItem('refresh_token').replace('refresh_token=', '')).then(
-      res => {
-        console.log(`Token refrescado: ${document.cookie}`)
-        document.cookie = `access_token=${res.cred}; max-age=${60*3}; path=/; samesite=strict`
-      }
-    ).catch( err => {
-      alert(err)
-    })
+    obtenerNuevoToken()
   })
 
 

@@ -30,6 +30,7 @@ export default function Login() {
                 break;
               case 3:
                 console.log("Es un revisor")
+                window.location.replace('/revisor')
                 break;
               case 4:
                 console.log("Es un aplicante")

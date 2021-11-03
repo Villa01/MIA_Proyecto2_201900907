@@ -20,7 +20,6 @@ class CarouselPuestos extends Component{
 
     getPuestos() {
         obtenerPuestos().then(resp => {
-            console.log(resp.data)
             this.setState({puestos: resp.data})
         })
     }

@@ -110,3 +110,25 @@ export async function enviarAplicacion(data){
 export async function upload(file){
     return await axios.post(`${urlApi}upload`, file)
 }
+
+export async function aplicantes(usuario){
+    console.log(usuario)
+    return await axios.post(`${urlApi}aplicantes`, {usuario: usuario},
+    {
+        headers: {
+            'authorization': document.cookie.replace('access_token=', '')
+        }
+    })
+}
+
+
+export function obtenerNuevoToken(){
+    refrescarToken(window.localStorage.getItem('refresh_token').replace('refresh_token=', '')).then(
+        res => {
+            document.cookie = `access_token=${res.data.cred}; max-age=${60*3}; path=/; samesite=strict`
+        }
+      ).catch( err => {
+        alert(err)
+        window.location.replace('/')
+      })
+}
