@@ -30,7 +30,6 @@ class UploadComponent extends Component {
     }
 
     enviar = async () => {
-        console.log(this.state.file)
         await axios.post('http://localhost:5000/subirxml', this.state.file).then( res => {
             this.setState({info:JSON.stringify(res.data, undefined, 2)})
         })

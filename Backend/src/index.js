@@ -360,6 +360,90 @@ app.use('/calificarPuesto', (req, res) => {
 
 })
 
+app.post('/aplicacionpuesto', (req, res) => {
+    let { puesto, nombre, apellido, correo, direccion, telefono, cui, file } = req.body
+
+    console.log(req.body)
+
+    // Creacion aplicante
+    let consulta = `insert into mia.aplicante(nombre, apellido, correo, direccion, fecha_aplicacion, cui, telefono, cv ) 
+    values ('${nombre}', '${apellido}', '${correo}', '${direccion}', curdate(), ${cui}, ${telefono}, '${file}');`
+
+    connection.query(consulta, (err, result) => {
+        if(err){
+            console.log(err)
+            res.status(500)
+        } else {
+            let consulta_p_a = `
+                insert into mia.puesto_aplicante(codigo_puesto, codigo_aplicante) values (
+                (select codigo_puesto from mia.puesto where puesto.nombre_puesto like '%${puesto}%' limit 1),
+                (select codigo_aplicante from mia.aplicante where aplicante.cui = ${cui} limit 1)
+            );`
+            connection.query(consulta_p_a, (err, result) => {
+                if(err){
+                    console.log(err)
+                    res.status(500)
+                } else {
+                    let consulta_expediente = `insert into mia.expediente(codigo_aplicante, estado) values (
+                        (select codigo_aplicante from mia.aplicante where aplicante.cui = ${cui} limit 1),
+                        'pendiente'
+                        );`
+                    connection.query(consulta_expediente, err => {
+                        if(err) {
+                            console.log(err)
+                            res.status(500)
+                        } else {
+                            consulta_asignar = `
+                            update mia.aplicante set aplicante.nombre_usuario = (
+                                select b.nombre_usuario from (
+                                    select a.nombre_usuario, min(a.aplicantes) from (
+                                        select u.nombre_usuario nombre_usuario, count(codigo_aplicante) aplicantes from mia.usuario u
+                                        inner join mia.rol on u.codigo_rol = rol.codigo_rol
+                                        left join mia.aplicante a on u.nombre_usuario = a.nombre_usuario
+                                        inner join mia.departamento d on u.codigo_departamento = d.codigo_departamento
+                                        inner join mia.puesto p on d.codigo_departamento = p.codigo_departamento
+                                        where rol.nombre_rol like '%Revisor%' and
+                                        p.nombre_puesto like '%${puesto}%' and u.activo = 1
+                                        group by u.nombre_usuario
+                                    ) as a limit 1
+                                ) as b
+                            )
+                            where aplicante.cui = ${cui}
+                            ;
+                            `
+                            connection.query(consulta_asignar, err => {
+                                if(err){
+                                    console.log(err)
+                                    res.status(500)
+                                } else {
+                                    res.status(200).send({msg:'Asignacion correcta'})
+                                }
+                            })
+                        }
+                    })
+                }
+            })
+        }
+
+    })
+
+    res.status(500)
+})
+
+app.post('/upload', (req, res) => {
+    
+    let EDFile = req.files.file
+    let p = path.resolve(`${__dirname}/Files/${EDFile.name}`)
+    EDFile.mv(p, err => {
+        if (err){
+            console.log(err)
+        } else {
+            res.status(200).send({path : p})
+        }
+    })
+
+})
+
 function procesar_departamento(departamento, padre) {
     if (departamento.constructor === Array){
         departamento.forEach( dep => {

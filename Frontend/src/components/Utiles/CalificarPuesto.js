@@ -64,7 +64,7 @@ class CalificarPuesto extends Component {
                         <input type="radio" value="2" name="cal" /> 2 
                         <input type="radio" value="3" name="cal" /> 3 
                         <input type="radio" value="4" name="cal" /> 4 
-                        <input type="radio" value="5" name="cal" checked/> 5 
+                        <input type="radio" value="5" name="cal" defaultChecked/> 5 
                 </div>
                 
                 <button

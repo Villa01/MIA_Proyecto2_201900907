@@ -74,3 +74,11 @@ export async function filtrarPuestos(data){
 export async function calificarPuesto(data){
     return await axios.post(`${urlApi}calificarPuesto`, data)
 }
+
+export async function enviarAplicacion(data){
+    return await axios.post(`${urlApi}aplicacionpuesto`, data)
+}
+
+export async function upload(file){
+    return await axios.post(`${urlApi}upload`, file)
+}
