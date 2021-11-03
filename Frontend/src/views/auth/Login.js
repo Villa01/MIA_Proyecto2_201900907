@@ -10,7 +10,13 @@ export default function Login() {
 
 
       await login2(usuarioRef.current.value, passwordRef.current.value).then( res => {
-          const { mensaje, tipo, correcto} = res.data
+          const { mensaje, tipo, correcto, cred } = res.data
+
+          // Guardar token de acceso en cookie
+          document.cookie = `access_token=${cred.access_token}; max-age=${60*3}; path=/; samesite=strict`
+          // Guardar el token de refresco
+          window.localStorage.setItem('refresh_token', `refresh_token=${cred.refresh_token}`)
+          console.log(document.cookie)
           alert(mensaje)          
           if ( correcto === true ){
             switch(tipo){

@@ -5,6 +5,7 @@ var mysql = require('mysql')
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const convert = require('xml-js')
+const jwt = require('jsonwebtoken')
 
 const fileUpload = require('express-fileupload')
 fs = require('fs');
@@ -13,6 +14,11 @@ fs = require('fs');
 const app = express();
 app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
+
+const access_key = 'idania';
+const refresh_key = 'amor'
+const time_access = '1m'
+const time_refresh = '15m'
 //oracledb.initOracleClient({libDir: './instantclient_21_3/'});
 /*
 try {
@@ -63,6 +69,12 @@ app.get('/', function (req, res){
 app.post('/login',async function(req, res){
     const { usuario, password } = req.body
     peticion = `select contrasenia, codigo_rol, activo from mia.usuario where nombre_usuario = '${usuario}';`
+    user = {usuario, password}
+    // Generacion de token de acceso
+    const access_token = jwt.sign(user, access_key)
+    const refresh_token = jwt.sign(user, refresh_key, { expiresIn: time_refresh})
+    console.log(`Se generó un token de acceso : ${access_token}`)
+    console.log(`Se generó un token de refresco : ${refresh_token}`)
     
     await connection.query(peticion, function(err, result){
         if (err) {
@@ -74,7 +86,7 @@ app.post('/login',async function(req, res){
         } else {
             if (result[0].contrasenia == password){
                 if (result[0].activo == 1){
-                    r = {mensaje : "Login correcto ", tipo: result[0].codigo_rol, correcto: true}
+                    r = {mensaje : "Login correcto ", tipo: result[0].codigo_rol, correcto: true, cred: {access_token, refresh_token}}
                     res.setHeader('Content-Type', 'application/json')
                     return res.status(200).send(r)
                 } else {
@@ -88,6 +100,41 @@ app.post('/login',async function(req, res){
 
     });
 });
+
+app.get("/pruebaDatos", (req, res) => {
+    const token = req.headers['authorization']
+    if (token) {
+        jwt.verify(token, access_key, (err, user) => {
+            if(err){
+                console.log(`El token de acceso no es válido: ${token}`)
+                res.status(403).json({msg:'No autorizado'})
+            } else {
+                let usuario = user.usuario
+                console.log(`Se validó el token de acceso : ${token}`)
+                res.status(200).json({msg:'Exito', usuario})
+            }
+        })
+    } else {
+        console.log(`El token de acceso no es válido: ${token}`)
+        res.status(403).json({msg:'No autorizado'})
+    }
+})
+
+
+app.get('/refreshtoken', (req, res)=> {
+    const refresh_token = req.headers['authorization']
+    jwt.verify(refresh_token, refresh_key, (err, user) => {
+        if (err) {
+            console.log(`${refresh_token} rechazado`)
+            res.status(403).json({msg:'Token de refresco inválido'})
+        } else {
+            const access_token = jwt.sign(user, access_key)
+            res.status(200).json({cred: access_token})
+        }
+    })
+})
+
+
 
 app.use(fileUpload())
 
@@ -362,8 +409,6 @@ app.use('/calificarPuesto', (req, res) => {
 
 app.post('/aplicacionpuesto', (req, res) => {
     let { puesto, nombre, apellido, correo, direccion, telefono, cui, file } = req.body
-
-    console.log(req.body)
 
     // Creacion aplicante
     let consulta = `insert into mia.aplicante(nombre, apellido, correo, direccion, fecha_aplicacion, cui, telefono, cv ) 

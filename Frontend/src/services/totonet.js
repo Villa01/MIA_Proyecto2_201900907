@@ -40,7 +40,35 @@ export async function enviarDatos(docs){
 }
 
 export async function login2(usuario, password){
-    return await axios.post('http://localhost:5000/login', {usuario: usuario, password: password})
+    return await axios.post(
+        'http://localhost:5000/login', 
+        {
+            usuario: usuario,
+            password: password
+        }
+    )
+}
+
+export async function autenticacion(token){
+    return await axios.get(
+        `${urlApi}pruebaDatos`,
+        {
+            headers: {
+                'authorization': token
+            }
+        }
+    )
+}
+
+export async function refrescarToken(token_refresco){
+    return await axios.get(
+        `${urlApi}refreshtoken`,
+        {
+            headers: {
+                'authorization': token_refresco
+            }
+        }
+    )
 }
 
 export async function getUsuarios(orden){
