@@ -112,8 +112,16 @@ export async function upload(file){
 }
 
 export async function aplicantes(usuario){
-    console.log(usuario)
     return await axios.post(`${urlApi}aplicantes`, {usuario: usuario},
+    {
+        headers: {
+            'authorization': document.cookie.replace('access_token=', '')
+        }
+    })
+}
+
+export async function modEstadoAplicante(data){
+    return await axios.post(`${urlApi}modificarestado`,data,
     {
         headers: {
             'authorization': document.cookie.replace('access_token=', '')

@@ -502,8 +502,8 @@ app.post('/aplicantes', (req, res) => {
                 const { usuario } = req.body
                 let qu = `select a.nombre, a.apellido, a.correo, a.apellido, a.direccion, a.fecha_aplicacion, a.cui, a.telefono, a.cv from mia.aplicante a
                 inner join mia.usuario u on u.nombre_usuario = a.nombre_usuario
-                where u.nombre_usuario = '${usuario}';`
-                console.log(qu)
+                inner join mia.expediente e on a.codigo_aplicante = e.codigo_aplicante
+                where u.nombre_usuario = '${usuario}' and e.estado like 'pendiente';`
                 connection.query(qu, (err, result) => {
                     if(err) {
                         console.log(err)
@@ -519,6 +519,36 @@ app.post('/aplicantes', (req, res) => {
         res.status(403).json({msg:'No autorizado'})
     }
 
+})
+
+app.post('/modificarestado', (req, res)=> {
+    const token = req.headers['authorization']
+    if (token) {
+        jwt.verify(token, access_key, (err, user) => {
+            if(err){
+                console.log(`El token de acceso no es válido: ${token}`)
+                res.status(403).json({msg:'No autorizado'})
+            } else {
+                
+                const { cui, estado } = req.body
+                let qu = `update mia.expediente e set e.estado = '${estado}' where e.codigo_aplicante = (
+                    select codigo_aplicante from mia.aplicante a
+                    where a.cui = '${cui}' limit 1
+                );`
+                connection.query(qu, (err, result) => {
+                    if(err) {
+                        console.log(err)
+                        res.status(500).json({msg:'err'})
+                    } else {
+                        res.status(200).json({msg:result})
+                    }
+                })
+            }
+        })
+    } else {
+        console.log(`El token de acceso no es válido: ${token}`)
+        res.status(403).json({msg:'No autorizado'})
+    }
 })
 
 function procesar_departamento(departamento, padre) {

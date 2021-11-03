@@ -3,7 +3,6 @@ import React, { Component } from "react";
 import Navbar from "components/Navbars/AuthNavbar.js";
 import Footer from "components/Footers/Footer.js";
 import { autenticacion } from "services/totonet";
-import { refrescarToken } from "services/totonet";
 import Aplicante from "components/Utiles/Aplicante";
 import { aplicantes } from "services/totonet";
 import { obtenerNuevoToken } from "services/totonet";
@@ -91,12 +90,18 @@ class Revisor extends Component {
                     >
                       Revisor: {this.state.nombre}
                     </h3>
-                    <div className="text-sm leading-normal mt-0 mb-2 text-blueGray-400 font-bold uppercase">
-                    </div>
-                    <div style={{display:'flex', justifyContent:'space-evenly'}}>
+                    <div  
+                        style={
+                          {
+                            display:'grid',
+                            gridGap:'5px',
+                            gridTemplateColumns: 'repeat(4,auto)'
+                          }
+                        }>
                     {
                       this.state.mostrar && this.state.aplicantes.map( aplicante => {
-                        return (<Aplicante 
+                        return (
+                        <Aplicante 
                           nombre={aplicante.nombre} 
                           apellido={aplicante.apellido} 
                           correo={aplicante.correo} 
@@ -105,10 +110,15 @@ class Revisor extends Component {
                           cui = {aplicante.cui} 
                           telefono = {aplicante.telefono} 
                           cv = {aplicante.cv} 
-                        ></Aplicante>)
+                        ></Aplicante>
+                        )
                       })
                     }
+                    
                     </div>
+                    <br></br>
+                    <br></br>
+                    <br></br>
                   </div>
                   
                 </div>
