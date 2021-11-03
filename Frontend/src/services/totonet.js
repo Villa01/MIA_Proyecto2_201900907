@@ -120,6 +120,16 @@ export async function aplicantes(usuario){
     })
 }
 
+
+export async function filtroAplicantes(data){
+    return await axios.post(`${urlApi}filtroaplicantes`, data,
+    {
+        headers: {
+            'authorization': document.cookie.replace('access_token=', '')
+        }
+    })
+}
+
 export async function modEstadoAplicante(data){
     return await axios.post(`${urlApi}modificarestado`,data,
     {

@@ -521,6 +521,47 @@ app.post('/aplicantes', (req, res) => {
 
 })
 
+
+app.post('/filtroaplicantes', (req, res)=> {
+    
+    const token = req.headers['authorization']
+
+    if (token) {
+        jwt.verify(token, access_key, (err, user) => {
+            if(err){
+                console.log(`El token de acceso no es válido: ${token}`)
+                res.status(403).json({msg:'No autorizado'})
+            } else {
+                let { parametro, campo, usuario } = req.body
+
+                let query = `select p.nombre_puesto,  a.nombre, a.correo, a.apellido, a.direccion, a.fecha_aplicacion, a.cui, a.telefono, a.cv from mia.aplicante a
+                inner join mia.usuario u on u.nombre_usuario = a.nombre_usuario
+                inner join mia.puesto_aplicante pa on pa.codigo_aplicante = a.codigo_aplicante
+                inner join mia.puesto p on p.codigo_puesto = pa.codigo_puesto
+                inner join mia.expediente e on a.codigo_aplicante = e.codigo_aplicante
+                where e.estado like 'pendiente' and
+                a.nombre_usuario = '${usuario}' and
+                ${campo} like '%${parametro}%';`
+                console.log(query)
+                connection.query(query, (err, result) => {
+                    if(err) {
+                        console.log(err)
+                        res.status(500).json({msg:'err'})
+                    } else {
+                        res.status(200).json({aplicantes:result})
+                    }
+                })
+            }
+        })
+    } else {
+        console.log(`El token de acceso no es válido: ${token}`)
+        res.status(403).json({msg:'No autorizado'})
+    }
+
+
+
+})
+
 app.post('/modificarestado', (req, res)=> {
     const token = req.headers['authorization']
     if (token) {

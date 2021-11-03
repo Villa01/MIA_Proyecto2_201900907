@@ -6,6 +6,7 @@ import { autenticacion } from "services/totonet";
 import Aplicante from "components/Utiles/Aplicante";
 import { aplicantes } from "services/totonet";
 import { obtenerNuevoToken } from "services/totonet";
+import BuscarAplicante from "components/Utiles/BuscarAplicante";
 
 class Revisor extends Component {
 
@@ -84,7 +85,14 @@ class Revisor extends Component {
                       </div>
                     </div>
                   </div>
-                  <div className="text-center mt-12">
+                  <div className="text-center mt-12" 
+                  style = {{
+                    display:'flex',
+                    flexDirection:'column',
+                    alignItems:'center',
+                    justifyContent:'space-evenly'
+                  }}
+                  >
                     <h3 className="text-4xl font-semibold leading-normal mb-2 text-blueGray-700 mb-2"
                       
                     >
@@ -116,6 +124,9 @@ class Revisor extends Component {
                     }
                     
                     </div>
+                    <BuscarAplicante
+                      usuario = {this.state.nombre}
+                    ></BuscarAplicante>
                     <br></br>
                     <br></br>
                     <br></br>

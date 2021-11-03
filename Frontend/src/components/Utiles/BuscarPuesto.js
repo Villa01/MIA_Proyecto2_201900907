@@ -34,7 +34,6 @@ class BuscarPuesto extends Component{
             campo: this.state.campo
         }
         filtrarPuestos(data).then(resp => {
-            console.log(resp.data.puestos)
             this.setState({puestos: resp.data.puestos})
             this.setState({mostrar: true})
         })

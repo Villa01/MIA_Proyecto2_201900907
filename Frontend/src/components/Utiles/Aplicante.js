@@ -129,6 +129,7 @@ class Aplicante extends Component{
                     onClick = {this.rechazar}        
                     >Rechazar</button>
                 </div>
+
             </div>
         )
     }
