@@ -65,8 +65,8 @@ class BuscarPuesto extends Component{
                 </button>
                 <br></br>
             </div>
-            <div onChange={this.updateCampo}>
-                <p> Ordenar por : </p>
+            <p> Buscar por : </p>
+            <div onChange={this.updateCampo} style={{display:'flex', justifyContent:'space-between'}}>
                     <input type="radio" value="puesto.nombre_puesto" name="orden" /> Nombre del Puesto
                     <input type="radio" value="puesto.salario" name="orden" /> Salario 
                     <input type="radio" value="departamento.nombre_departamento" name="orden" /> Departamento

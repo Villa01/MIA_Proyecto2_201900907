@@ -70,3 +70,7 @@ export async function obtenerPuestos(){
 export async function filtrarPuestos(data){
     return await axios.post(`${urlApi}filtropuestos`, data)
 }
+
+export async function calificarPuesto(data){
+    return await axios.post(`${urlApi}calificarPuesto`, data)
+}

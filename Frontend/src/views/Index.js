@@ -6,6 +6,7 @@ import IndexNavbar from "components/Navbars/IndexNavbar.js";
 import Footer from "components/Footers/Footer.js";
 import CarouselPuestos from "components/Utiles/CarouselPuestos";
 import BuscarPuesto from "components/Utiles/BuscarPuesto";
+import CalificarPuesto from "components/Utiles/CalificarPuesto";
 
 export default function Index() {
   return (
@@ -49,6 +50,12 @@ export default function Index() {
         style={{display:'flex', justifyContent:'space-evenly'}}
       >
         <BuscarPuesto></BuscarPuesto>
+      </section>
+      <br></br>
+      <section 
+        style={{display:'flex', justifyContent:'space-evenly'}}
+      >
+        <CalificarPuesto></CalificarPuesto>
       </section>
       
       <br></br>
