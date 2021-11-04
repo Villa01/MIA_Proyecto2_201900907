@@ -14,6 +14,9 @@ class Aplicante extends Component{
 
         this.aceptar = this.aceptar.bind(this)
         this.rechazar = this.rechazar.bind(this)
+        this.state = {
+            mostrarCurriculum : false
+        }
     }
 
     aceptar(){
@@ -87,9 +90,7 @@ class Aplicante extends Component{
                     <p><b>Fecha de la aplicación:</b> {fecha_aplicacion}</p>
                     <p><b>CUI:</b> {cui}</p>
                     <p><b>Telefono:</b> {telefono}</p>
-                    <a 
-                        href={cv} 
-                        download
+                    <button 
                         style={
                             {
                                 backgroundColor:'#1864ca', 
@@ -102,7 +103,8 @@ class Aplicante extends Component{
                         }
                         onMouseOver = {(e)=> {e.target.style.background='#2c7be6'}}
                         onMouseOut = {(e)=> {e.target.style.background='#1864ca'}}
-                    > Visualizar curriculum</a>
+                        onClick={(e)=> {this.setState({mostrarCurriculum: !this.state.mostrarCurriculum})}}
+                    > Visualizar curriculum</button>
                 </div>
                 <div 
                 style={
@@ -141,7 +143,15 @@ class Aplicante extends Component{
                     onClick = {this.rechazar}        
                     >Rechazar</button>
                 </div>
-
+                {
+                    this.state.mostrarCurriculum && (
+                        <embed 
+                            src={`http://localhost:5000/Files/${cv}` }
+                            width="400px" 
+                            height="600px"
+                        />
+                    )
+                }
             </div>
         )
     }

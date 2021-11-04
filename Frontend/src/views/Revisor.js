@@ -103,7 +103,7 @@ class Revisor extends Component {
                           {
                             display:'grid',
                             gridGap:'5px',
-                            gridTemplateColumns: 'repeat(4,auto)'
+                            gridTemplateColumns: 'repeat(2,auto)'
                           }
                         }>
                     {
@@ -128,11 +128,13 @@ class Revisor extends Component {
                     <BuscarAplicante
                       usuario = {this.state.nombre}
                     ></BuscarAplicante>
+
                     <br></br>
                     <br></br>
                     <br></br>
                   </div>
                   
+
                 </div>
               </div>
             </div>

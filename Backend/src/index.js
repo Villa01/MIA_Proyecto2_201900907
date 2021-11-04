@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const convert = require('xml-js')
 const jwt = require('jsonwebtoken')
 const nodemailer = require('nodemailer')
-
+const serveIndex = require('serve-index')
 const fileUpload = require('express-fileupload')
 fs = require('fs');
 
@@ -40,6 +40,10 @@ try {
 } 
 
 */
+
+app.use('/Files', express.static(__dirname + '/Files'), serveIndex(__dirname + '/Files'));
+
+
 
 let transport = nodemailer.createTransport({
     service: 'gmail',
@@ -327,9 +331,8 @@ app.post('/crearaplicanteusuario', (req, res )=> {
                                     res.status(200).json({msg:'Problema al encontrar el puesto de aplicacion'})
                                 }
 
-                                let text = `¡Felicidades! ha sido seleccionado para la plaza ${result[0].nombre_puesto} del departamento de ${result[0].nombre_departamento}.
-                                            Necesitamos que ingrese a nuestra pagina con las siguientes credenciales: usuario: ${cui}, contraseña: ${password}.\n
-                                            Ahi usted podrá llenar su expediente y los requisitos necesarios. `
+                                let text = `¡Felicidades! ha sido seleccionado para la plaza ${result[0].nombre_puesto} del departamento de ${result[0].nombre_departamento}.Necesitamos que ingrese a nuestra pagina con las siguientes credenciales: usuario: ${cui}, contraseña: ${password}
+                                Ahi usted podrá llenar su expediente y los requisitos necesarios. `
                                 enviarCorreo(correo, 'Proceso de reclutamiento Totonet', text)
 
                                 res.status(200).json({msg:'Correo enviado correctamente'})
@@ -571,14 +574,15 @@ app.post('/aplicacionpuesto', (req, res) => {
 })
 
 app.post('/upload', (req, res) => {
-    
     let EDFile = req.files.file
-    let p = path.resolve(`${__dirname}/Files/${EDFile.name}`)
+    let nombre = `${Math.random().toString(36).substr(2, 8)}${EDFile.name}`
+    console.log(nombre)
+    let p = path.resolve(`${__dirname}/Files/${nombre}`)
     EDFile.mv(p, err => {
         if (err){
             console.log(err)
         } else {
-            res.status(200).send({path : p})
+            res.status(200).send({path : nombre})
         }
     })
 
