@@ -117,7 +117,8 @@ class Revisor extends Component {
                           fecha_aplicacion = {aplicante.fecha_aplicacion} 
                           cui = {aplicante.cui} 
                           telefono = {aplicante.telefono} 
-                          cv = {aplicante.cv} 
+                          cv = {aplicante.cv}                           
+                          usuario = {this.state.nombre}
                         ></Aplicante>
                         )
                       })

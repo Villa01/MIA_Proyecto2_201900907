@@ -1,3 +1,4 @@
+import { crearUsuarioAplicante } from "services/totonet";
 import { obtenerNuevoToken } from "services/totonet";
 import { modEstadoAplicante } from "services/totonet";
 
@@ -16,16 +17,27 @@ class Aplicante extends Component{
     }
 
     aceptar(){
+        
+        let info = {
+            usuario : this.props.usuario,
+            cui : this.props.cui,
+            correo : this.props.correo
+        }
+        crearUsuarioAplicante(info).then(resp => {
+            modEstadoAplicante(data).then( resp => {
+                window.location.reload(false);
+                alert('Usuario aceptado, correo enviado correctamente')
+            }).catch( err => {
+                obtenerNuevoToken();
+            })
+        }).catch(err => {
+            obtenerNuevoToken();
+        });
         let data = {
             cui : this.props.cui,
             estado: 'aceptado'
         }
 
-        modEstadoAplicante(data).then( resp => {
-            window.location.reload(false);
-        }).catch( err => {
-            obtenerNuevoToken();
-        })
     }
 
     rechazar(){

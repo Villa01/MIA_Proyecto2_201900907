@@ -6,6 +6,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const convert = require('xml-js')
 const jwt = require('jsonwebtoken')
+const nodemailer = require('nodemailer')
 
 const fileUpload = require('express-fileupload')
 fs = require('fs');
@@ -40,6 +41,17 @@ try {
 
 */
 
+let transport = nodemailer.createTransport({
+    service: 'gmail',
+    port: 2525,
+    secure: false,
+    auth: {
+        type: 'login',
+        user: 'totonetarchivos@gmail.com',
+        pass : 'archivos2021'
+    }
+})
+
 var connection = mysql.createConnection(
     {
         host : "localhost", 
@@ -65,6 +77,8 @@ app.use(express.json());
 app.get('/', function (req, res){
     res.send('Hello World')
 });
+
+
 
 app.post('/login',async function(req, res){
     const { usuario, password } = req.body
@@ -250,6 +264,87 @@ app.post('/crearusuario', (req, res) => {
         }
     })
 })
+
+
+async function enviarCorreo(correo, subject, text){
+    const message = {
+        from : 'totonetarchivos@gmail.com',
+        to: correo,
+        subject: subject,
+        text: text
+    }
+
+    transport.sendMail(message, function(err, info){
+        if(err){
+            console.log(err)
+        } else {
+            console.log(info)
+        }
+    })
+}
+
+
+
+app.post('/crearaplicanteusuario', (req, res )=> {
+
+    const token = req.headers['authorization']
+
+    if (token) {
+        jwt.verify(token, access_key, (err, user) => {
+            if(err){
+                console.log(`El token de acceso no es válido: ${token}`)
+                res.status(403).json({msg:'No autorizado'})
+            } else {
+                let { usuario, cui, correo } = req.body
+                let password = Math.random().toString(36).substr(2, 8);
+                let consulta = `insert into mia.usuario(nombre_usuario, cui, contrasenia, fecha_inicio, activo, codigo_rol, codigo_departamento) 
+                values ('${cui}',${cui},'${password}', curdate(), true, 
+                    (select codigo_rol from mia.rol where nombre_rol like '%Aplicante%' limit 1),
+                    (select d.codigo_departamento from mia.aplicante a 
+                    inner join mia.puesto_aplicante pa on pa.codigo_aplicante = a.codigo_aplicante
+                    inner join mia.puesto p on p.codigo_puesto = pa.codigo_puesto
+                    inner join mia.departamento d on d.codigo_departamento = p.codigo_departamento
+                    where a.cui = ${cui} limit 1
+                    )
+                );`
+                connection.query(consulta, (err, result) => {
+                    if(err) {
+                        console.log(err)
+                        res.status(500).json({msg:'err'})
+                    } else {
+                        let consulta = `select d.nombre_departamento, p.nombre_puesto from mia.aplicante a 
+                        inner join mia.puesto_aplicante pa on pa.codigo_aplicante = a.codigo_aplicante
+                        inner join mia.puesto p on p.codigo_puesto = pa.codigo_puesto
+                        inner join mia.departamento d on d.codigo_departamento = p.codigo_departamento
+                        where a.cui = ${cui} limit 1;`
+                        connection.query(consulta, (err, result )=> {
+                            if (err) {
+                                console.log(err)
+                                res.status(500).json({msg:'err'})
+                            } else {
+                                if(result.length < 1){
+                                    
+                                    res.status(200).json({msg:'Problema al encontrar el puesto de aplicacion'})
+                                }
+
+                                let text = `¡Felicidades! ha sido seleccionado para la plaza ${result[0].nombre_puesto} del departamento de ${result[0].nombre_departamento}.
+                                            Necesitamos que ingrese a nuestra pagina con las siguientes credenciales: usuario: ${cui}, contraseña: ${password}.\n
+                                            Ahi usted podrá llenar su expediente y los requisitos necesarios. `
+                                enviarCorreo(correo, 'Proceso de reclutamiento Totonet', text)
+
+                                res.status(200).json({msg:'Correo enviado correctamente'})
+                            }
+                        })
+                    }
+                })
+            }
+        })
+    } else {
+        console.log(`El token de acceso no es válido: ${token}`)
+        res.status(403).json({msg:'No autorizado'})
+    }
+})
+
 
 app.post('/eliminarusuario', (req, res) => {
     const { nombre_usuario } = req.body
@@ -542,7 +637,6 @@ app.post('/filtroaplicantes', (req, res)=> {
                 where e.estado like 'pendiente' and
                 a.nombre_usuario = '${usuario}' and
                 ${campo} like '%${parametro}%';`
-                console.log(query)
                 connection.query(query, (err, result) => {
                     if(err) {
                         console.log(err)
@@ -557,9 +651,6 @@ app.post('/filtroaplicantes', (req, res)=> {
         console.log(`El token de acceso no es válido: ${token}`)
         res.status(403).json({msg:'No autorizado'})
     }
-
-
-
 })
 
 app.post('/modificarestado', (req, res)=> {

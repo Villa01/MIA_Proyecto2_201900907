@@ -139,6 +139,18 @@ export async function modEstadoAplicante(data){
     })
 }
 
+export async function enviarCorreo(){
+    return await axios.post(`${urlApi}enviarcorreo`);
+}
+
+export async function crearUsuarioAplicante(data){
+    return await axios.post(`${urlApi}crearaplicanteusuario`, data,
+    {
+        headers: {
+            'authorization': document.cookie.replace('access_token=', '')
+        }
+    })
+}
 
 export function obtenerNuevoToken(){
     refrescarToken(window.localStorage.getItem('refresh_token').replace('refresh_token=', '')).then(
