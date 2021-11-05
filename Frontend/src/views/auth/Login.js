@@ -33,7 +33,7 @@ export default function Login() {
                 window.location.replace('/revisor')
                 break;
               case 4:
-                console.log("Es un aplicante")
+                window.location.replace('/aplicante')
                 break;
               default:
                 console.log("Tipo de usuario no reconocido")

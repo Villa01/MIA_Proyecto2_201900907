@@ -1,3 +1,4 @@
+import { agregarRequisitoExpediente } from "services/totonet";
 import { upload } from "services/totonet";
 import { enviarAplicacion } from "services/totonet";
 
@@ -65,10 +66,10 @@ class AplicarPuesto extends Component{
 
 
 
-        // if(cui.length < 13 || isNaN(cui)){
-        //     alert('El valor del cui no es valido')
-        //     return 
-        // }
+        if(cui.length < 13 || isNaN(cui)){
+             alert('El valor del cui no es valido')
+             return 
+        }
         upload(file).then(resp => {
             let { path } = resp.data
             let data = {
@@ -84,7 +85,15 @@ class AplicarPuesto extends Component{
             console.log(data)
             enviarAplicacion(data).then(resp => {
                 console.log(resp)
-                alert('Aplicación enviada, nos estaremos comunicando con usted')
+                let info = {
+                    cui,
+                    puesto
+                }
+                agregarRequisitoExpediente(info).then(() => {
+                    alert('Aplicación enviada, nos estaremos comunicando con usted')
+                }).catch(err => {
+                    alert('No se pudo ingresar su aplicación al puesto')
+                })
             }).catch(err => {
                 alert('No se pudo ingresar su aplicación al puesto')
             })

@@ -576,7 +576,6 @@ app.post('/aplicacionpuesto', (req, res) => {
 app.post('/upload', (req, res) => {
     let EDFile = req.files.file
     let nombre = `${Math.random().toString(36).substr(2, 8)}${EDFile.name}`
-    console.log(nombre)
     let p = path.resolve(`${__dirname}/Files/${nombre}`)
     EDFile.mv(p, err => {
         if (err){
@@ -586,6 +585,109 @@ app.post('/upload', (req, res) => {
         }
     })
 
+})
+
+app.post('/updateaplicante', (req, res) => {
+    // Verificacion de token
+    const token = req.headers['authorization']
+    if (token) {
+        jwt.verify(token, access_key, (err, user) => {
+            if(err){
+                console.log(`El token de acceso no es válido: ${token}`)
+                res.status(403).json({msg:'No autorizado'})
+            } else {
+                
+                const { usuario, cui, nombre, apellido, correo, direccion, telefono, cv } = req.body
+                let qu = ''
+                if(cv) { 
+                    qu = `update mia.aplicante a set a.cui = ${cui}, a.nombre = '${nombre}', a.apellido = '${apellido}', a.correo ='${correo}', a.direccion = '${direccion}',
+                    a.telefono = '${telefono}', a.cv = '${cv}' where a.cui = ${cui};`
+                } else {
+                    qu = `update mia.aplicante a set a.cui = ${cui}, a.nombre = '${nombre}', a.apellido = '${apellido}', a.correo ='${correo}', a.direccion = '${direccion}',
+                    a.telefono = '${telefono}' where a.cui = ${cui};`
+                }
+                
+                connection.query(qu, (err, result) => {
+                    if(err) {
+                        console.log(err)
+                        res.status(500).json({msg:'err'})
+                    } else {
+                        res.status(200).json({data: result[0]})
+                    }
+                })
+            }
+        })
+    } else {
+        console.log(`El token de acceso no es válido: ${token}`)
+        res.status(403).json({msg:'No autorizado'})
+    }
+})
+
+
+app.post('/agregarrequisitos', (req, res )=>{
+    let { puesto, cui } = req.body
+
+    let queryGetReq = `select r.codigo_requisito, p.codigo_puesto from mia.puesto p 
+    inner join mia.puesto_requisito pr on p.codigo_puesto = pr.codigo_puesto
+    inner join mia.requisito r on r.codigo_requisito = pr.codigo_requisito
+    where p.nombre_puesto like '%${puesto}%'`
+
+    connection.query(queryGetReq, (err, result) => {
+        if(err) {
+            console.log(err)
+            res.status(500)
+        } else {
+            result.forEach( requisito => {
+                let { codigo_requisito } = requisito
+                let queryInsertRequisitoExpediente = `insert into mia.requisito_expendiente (codigo_requisito, codigo_expediente, aceptado) 
+                values(${codigo_requisito},
+                (
+                select e.codigo_expediente from mia.expediente e
+                inner join mia.aplicante p on p.codigo_aplicante = e.codigo_aplicante 
+                where p.cui = ${cui} limit 1
+                )
+                , false);`
+                connection.query(queryInsertRequisitoExpediente, (err) => {
+                    if(err){
+                        console.log(err)
+                        res.status(500)
+                    } else {
+                        res.status(200)
+                    }
+                })
+            })
+        }
+    })
+
+})
+
+app.post('/getaplicante', (req, res) => {
+    // Verificacion de token
+    const token = req.headers['authorization']
+    if (token) {
+        jwt.verify(token, access_key, (err, user) => {
+            if(err){
+                console.log(`El token de acceso no es válido: ${token}`)
+                res.status(403).json({msg:'No autorizado'})
+            } else {
+                
+                const { cui } = req.body
+                let qu = `select a.cui, a.nombre, a.apellido, a.correo, a.direccion, a.telefono from mia.aplicante a where a.cui = ${cui} limit 1;`
+                connection.query(qu, (err, result) => {
+                    if(err) {
+                        console.log(err)
+                        res.status(500).json({msg:'err'})
+                    } else {
+                        console.log(result[0])
+                        res.status(200).json({data: result[0]})
+                    }
+                })
+            }
+        })
+    } else {
+        console.log(`El token de acceso no es válido: ${token}`)
+        res.status(403).json({msg:'No autorizado'})
+    }
 })
 
 app.post('/aplicantes', (req, res) => {
@@ -902,6 +1004,8 @@ function procesar_requisito(requisito, puesto){
     
 }
 
+
+
 function procesar_formato(formato, nombre_requisito){
     if (formato.constructor === Array){
         formato.forEach( format => {
@@ -910,7 +1014,7 @@ function procesar_formato(formato, nombre_requisito){
             console.log("Nombre ", nombre._text)
             let peticion = `insert into mia.formato(nombre_formato) values ('${nombre._text}');`
             insert(peticion, nombre._text)
-
+            console.log(`insert into mia.requisito_formato (codigo_requisito, nombre_formato) select req.codigo_requisito, f.nombre_formato from(select codigo_requisito from mia.requisito where requisito.nombre_requisito = '${nombre_requisito}' limit 1) as req,(select nombre_formato from mia.formato where nombre_formato like '%${nombre._text}%' limit 1) as f;`)
             // Llenar requisito_formato
             insert(`insert into mia.requisito_formato (codigo_requisito, nombre_formato) select req.codigo_requisito, f.nombre_formato from(select codigo_requisito from mia.requisito where requisito.nombre_requisito = '${nombre_requisito}' limit 1) as req,(select nombre_formato from mia.formato where nombre_formato like '%${nombre._text}%' limit 1) as f;`, nombre._text)
         });

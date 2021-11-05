@@ -87,6 +87,10 @@ export async function buscarUsuario(usuario){
     return await axios.post(`${urlApi}buscarusuario`, usuario)
 }
 
+export async function agregarRequisitoExpediente(data){
+    return await axios.post(`${urlApi}agregarrequisitos`, data)
+}
+
 export async function editarUsuarioReq(usuario){
     return await axios.post(`${urlApi}editarusuario`, usuario)
 }
@@ -123,6 +127,25 @@ export async function aplicantes(usuario){
 
 export async function filtroAplicantes(data){
     return await axios.post(`${urlApi}filtroaplicantes`, data,
+    {
+        headers: {
+            'authorization': document.cookie.replace('access_token=', '')
+        }
+    })
+}
+
+export async function getInfoAplicante(data){
+    return await axios.post(`${urlApi}getaplicante`, data,
+    {
+        headers: {
+            'authorization': document.cookie.replace('access_token=', '')
+        }
+    })
+}
+
+export async function updateAplicacion(data){
+    console.log(`La data es ${data}`)
+    return await axios.post(`${urlApi}updateaplicante`, data,
     {
         headers: {
             'authorization': document.cookie.replace('access_token=', '')
