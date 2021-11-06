@@ -134,6 +134,24 @@ export async function filtroAplicantes(data){
     })
 }
 
+export async function setExtadoExpediente(data){
+    return await axios.post(`${urlApi}setEstadoExpediente`, data,
+    {
+        headers: {
+            'authorization': document.cookie.replace('access_token=', '')
+        }
+    })
+}
+
+export async function getEstadoExpediente(data){
+    return await axios.post(`${urlApi}estadoExpediente`, data,
+    {
+        headers: {
+            'authorization': document.cookie.replace('access_token=', '')
+        }
+    })
+}
+
 export async function getInfoAplicante(data){
     return await axios.post(`${urlApi}getaplicante`, data,
     {
@@ -199,7 +217,7 @@ export function obtenerNuevoToken(){
             document.cookie = `access_token=${res.data.cred}; max-age=${60*3}; path=/; samesite=strict`
         }
       ).catch( err => {
-        alert('Lo sentimos, debe volver a iniciar sesión.')
+        alert('Sesión expirada.')
         window.location.replace('/')
       })
 }

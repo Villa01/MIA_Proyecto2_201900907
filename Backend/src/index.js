@@ -542,8 +542,8 @@ app.post('/aplicacionpuesto', (req, res) => {
     let { puesto, nombre, apellido, correo, direccion, telefono, cui, file } = req.body
 
     // Creacion aplicante
-    let consulta = `insert into mia.aplicante(nombre, apellido, correo, direccion, fecha_aplicacion, cui, telefono, cv ) 
-    values ('${nombre}', '${apellido}', '${correo}', '${direccion}', curdate(), ${cui}, ${telefono}, '${file}');`
+    let consulta = `insert into mia.aplicante(nombre, apellido, correo, direccion, fecha_aplicacion, cui, telefono, cv, estado ) 
+    values ('${nombre}', '${apellido}', '${correo}', '${direccion}', curdate(), ${cui}, ${telefono}, '${file}', 'pendiente');`
 
     connection.query(consulta, (err, result) => {
         if(err){
@@ -772,8 +772,7 @@ app.post('/aplicantes', (req, res) => {
                 const { usuario } = req.body
                 let qu = `select a.nombre, a.apellido, a.correo, a.apellido, a.direccion, a.fecha_aplicacion, a.cui, a.telefono, a.cv from mia.aplicante a
                 inner join mia.usuario u on u.nombre_usuario = a.nombre_usuario
-                inner join mia.expediente e on a.codigo_aplicante = e.codigo_aplicante
-                where u.nombre_usuario = '${usuario}' and e.estado like 'pendiente';`
+                where u.nombre_usuario = '${usuario}' and a.estado like '%pendiente%';`
                 connection.query(qu, (err, result) => {
                     if(err) {
                         console.log(err)
@@ -809,15 +808,75 @@ app.post('/filtroaplicantes', (req, res)=> {
                 inner join mia.puesto_aplicante pa on pa.codigo_aplicante = a.codigo_aplicante
                 inner join mia.puesto p on p.codigo_puesto = pa.codigo_puesto
                 inner join mia.expediente e on a.codigo_aplicante = e.codigo_aplicante
-                where e.estado like 'pendiente' and
+                where a.estado like 'pendiente' and
                 a.nombre_usuario = '${usuario}' and
-                ${campo} like '%${parametro}%';`
+                ${campo} like '%${parametro}%';`  
                 connection.query(query, (err, result) => {
                     if(err) {
                         console.log(err)
                         res.status(500).json({msg:'err'})
                     } else {
                         res.status(200).json({aplicantes:result})
+                    }
+                })
+            }
+        })
+    } else {
+        console.log(`El token de acceso no es válido: ${token}`)
+        res.status(403).json({msg:'No autorizado'})
+    }
+})
+
+
+app.post('/estadoExpediente', (req, res)=>{
+    const token = req.headers['authorization']
+    if (token) {
+        jwt.verify(token, access_key, (err, user) => {
+            if(err){
+                console.log(`El token de acceso no es válido: ${token}`)
+                res.status(403).json({msg:'No autorizado'})
+            } else {
+                
+                const { cui } = req.body
+                let qu = `select e.estado from mia.expediente e
+                inner join mia.aplicante a on a.codigo_aplicante = e.codigo_aplicante
+                where a.cui = ${cui} limit 1;`
+                connection.query(qu, (err, result) => {
+                    if(err) {
+                        console.log(err)
+                        res.status(500).json({msg:'err'})
+                    } else {
+                        res.status(200).json({data:result[0]})
+                    }
+                })
+            }
+        })
+    } else {
+        console.log(`El token de acceso no es válido: ${token}`)
+        res.status(403).json({msg:'No autorizado'})
+    }
+})
+
+
+app.post('/setEstadoExpediente', (req, res)=>{
+    const token = req.headers['authorization']
+    if (token) {
+        jwt.verify(token, access_key, (err, user) => {
+            if(err){
+                console.log(`El token de acceso no es válido: ${token}`)
+                res.status(403).json({msg:'No autorizado'})
+            } else {
+                
+                const { cui, estado } = req.body
+                let qu = `update mia.expediente e set e.estado = '${estado}' where e.codigo_aplicante = (
+                    select a.codigo_aplicante from mia.aplicante a where a.cui = ${cui} limit 1
+                );`
+                connection.query(qu, (err) => {
+                    if(err) {
+                        console.log(err)
+                        res.status(500).json({msg:'err'})
+                    } else {
+                        res.status(200)
                     }
                 })
             }
@@ -838,10 +897,7 @@ app.post('/modificarestado', (req, res)=> {
             } else {
                 
                 const { cui, estado } = req.body
-                let qu = `update mia.expediente e set e.estado = '${estado}' where e.codigo_aplicante = (
-                    select codigo_aplicante from mia.aplicante a
-                    where a.cui = '${cui}' limit 1
-                );`
+                let qu = `update mia.aplicante a set a.estado = '${estado}' where a.cui = ${cui};`
                 connection.query(qu, (err, result) => {
                     if(err) {
                         console.log(err)

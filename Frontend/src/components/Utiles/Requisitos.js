@@ -24,7 +24,6 @@ class SubirRequisitos extends Component{
         }
         obtenerRequisitos(data).then(resp => {
             let r = resp.data.requisitos ? resp.data.requisitos : []
-            console.log(resp)
             this.setState({requisitos : r})
         }).catch( err => {
             obtenerNuevoToken()
@@ -39,7 +38,8 @@ class SubirRequisitos extends Component{
                     
                         this.state.requisitos.map( requisito => {
                         return (
-                            <div>
+                            <div 
+                            key = {requisito.nombre_requisito}>
                                 <Requisito
                                     formatos = {requisito.formatos}
                                     nombreRequisito = {requisito.nombre_requisito}
