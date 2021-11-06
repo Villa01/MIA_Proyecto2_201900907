@@ -444,6 +444,40 @@ app.post('/editarusuario', (req, res) => {
     })
 })
 
+app.post('/obtenerrequisitos', (req, res) => {
+    const token = req.headers['authorization']
+    if (token) {
+        jwt.verify(token, access_key, (err, user) => {
+            if(err){
+                console.log(`El token de acceso no es válido: ${token}`)
+                res.status(403).json({msg:'No autorizado'})
+            } else {
+                
+                const { cui } = req.body
+                let queryObtRequisitos = `select r.nombre_requisito,  concat('.',group_concat(distinct rf2.nombre_formato separator ',.')) formatos from mia.formato f, mia.expediente e
+                inner join mia.aplicante a on e.codigo_aplicante = a.codigo_aplicante
+                inner join mia.requisito_expendiente re on e.codigo_expediente = re.codigo_expediente
+                inner join mia.requisito r on re.codigo_requisito = r.codigo_requisito
+                left join mia.requisito_formato rf2 on rf2.codigo_requisito = r.codigo_requisito
+                where rf2.nombre_formato = f.nombre_formato and
+                a.cui = ${cui} group by r.nombre_requisito;`
+
+                connection.query(queryObtRequisitos, (err, result ) => {
+                    if(err){
+                        console.log(err)
+                        res.status(500)
+                    } else {
+                        res.status(200).send({requisitos: result})
+                    }
+                })
+            }
+        })
+    } else {
+        console.log(`El token de acceso no es válido: ${token}`)
+        res.status(403).json({msg:'No autorizado'})
+    }
+})
+
 
 app.use('/filtropuestos', (req, res) => {
     let { parametro, campo } = req.body
@@ -473,7 +507,6 @@ app.use('/filtropuestos', (req, res) => {
         departamento.codigo_departamento = puesto.codigo_departamento group by nombre_puesto
         ;`
     }
-    console.log(consulta)
 
     connection.query(consulta, (err, result) => {
         if (err){
@@ -678,8 +711,44 @@ app.post('/getaplicante', (req, res) => {
                         console.log(err)
                         res.status(500).json({msg:'err'})
                     } else {
-                        console.log(result[0])
                         res.status(200).json({data: result[0]})
+                    }
+                })
+            }
+        })
+    } else {
+        console.log(`El token de acceso no es válido: ${token}`)
+        res.status(403).json({msg:'No autorizado'})
+    }
+})
+
+app.post('/subirrequisito', (req, res)=> {
+
+    const token = req.headers['authorization']
+    if (token) {
+        jwt.verify(token, access_key, (err, user) => {
+            if(err){
+                console.log(`El token de acceso no es válido: ${token}`)
+                res.status(403).json({msg:'No autorizado'})
+            } else {
+                
+                const { path, cui, nombre_requisito } = req.body
+                let consultaSubirRequisito = `update mia.requisito_expendiente re set re.aceptado = 0, re.documento = '${path}' 
+                where re.codigo_expediente = (
+                    select e.codigo_expediente from mia.expediente e
+                    inner join mia.aplicante a on a.codigo_aplicante = e.codigo_aplicante
+                    where a.cui = ${cui} limit 1
+                ) and 
+                re.codigo_requisito = (
+                    select r.codigo_requisito from mia.requisito r
+                    where r.nombre_requisito like '%${nombre_requisito}%' limit 1
+                );`
+                connection.query(consultaSubirRequisito, (err, result) => {
+                    if(err) {
+                        console.log(err)
+                        res.status(500).json({msg:'err'})
+                    } else {
+                        res.status(200)
                     }
                 })
             }

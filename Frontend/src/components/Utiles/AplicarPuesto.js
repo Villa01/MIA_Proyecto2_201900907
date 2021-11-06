@@ -19,7 +19,8 @@ class AplicarPuesto extends Component{
             correo : '',
             direccion : '',
             telefono: '',
-            file: ''
+            file: '',
+            mostrarRequisitos : false
 
         }
 
@@ -82,7 +83,6 @@ class AplicarPuesto extends Component{
                 cui, 
                 file : path
             }
-            console.log(data)
             enviarAplicacion(data).then(resp => {
                 console.log(resp)
                 let info = {

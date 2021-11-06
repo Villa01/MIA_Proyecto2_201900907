@@ -7,6 +7,7 @@ import { obtenerNuevoToken } from "services/totonet";
 import { upload } from "services/totonet";
 import { getInfoAplicante } from "services/totonet";
 import { updateAplicacion } from "services/totonet";
+import SubirRequisitos from "components/Utiles/Requisitos";
 
 class AplicantePage extends Component {
 
@@ -33,11 +34,13 @@ class AplicantePage extends Component {
 
     autenticacion(document.cookie.replace('access_token=', '')).then(res => {
         this.setState({cui: res.data.usuario})
+        window.localStorage.setItem('cuiaplicante', res.data.usuario)
         this.getInfo();
     }).catch( err => {
       obtenerNuevoToken()
     })
     
+
   }
 
   setFile = async (e) => { 
@@ -75,9 +78,10 @@ class AplicantePage extends Component {
     let info = {
       cui : this.state.cui
     }
-    getInfoAplicante(info).then(resp => {
-      let {  cui, nombre, apellido, correo, direccion, telefono } = resp.data.data
 
+    getInfoAplicante(info).then(resp => {
+      console.log('Get info aplicnate ', resp.data)
+      let {  cui, nombre, apellido, correo, direccion, telefono } = resp.data.data
 
       this.setState({cui: cui})
       this.setState({nombre:nombre})
@@ -260,8 +264,9 @@ class AplicantePage extends Component {
                         onClick={this.enviar}
                     >Modificar datos</button>
                 </div>
-                  
-
+                  <SubirRequisitos
+                    cui = {this.state.cui} 
+                  ></SubirRequisitos>
                 </div>
               </div>
             </div>
