@@ -956,6 +956,42 @@ app.post('/getExpedienteAplicantesRevisor', (req, res)=>{
     }
 })
 
+
+app.post('/documentosExpediente', (req, res)=>{
+    const token = req.headers['authorization']
+    if (token) {
+        jwt.verify(token, access_key, (err, user) => {
+            if(err){
+                console.log(`El token de acceso no es válido: ${token}`)
+                res.status(403).json({msg:'No autorizado'})
+            } else {
+                
+                const { cui } = req.body
+                
+                let qu = `select re.documento, r.nombre_requisito, concat('.',group_concat(distinct rf2.nombre_formato separator ',.')) formatos from mia.formato f, mia.expediente e
+                inner join mia.aplicante a on e.codigo_aplicante = a.codigo_aplicante
+                inner join mia.requisito_expendiente re on e.codigo_expediente = re.codigo_expediente
+                inner join mia.requisito r on re.codigo_requisito = r.codigo_requisito
+                left join mia.requisito_formato rf2 on rf2.codigo_requisito = r.codigo_requisito
+                where rf2.nombre_formato = f.nombre_formato and
+                a.cui = ${cui} group by r.nombre_requisito;`
+
+                connection.query(qu, (err, result) => {
+                    if(err) {
+                        console.log(err)
+                        res.status(500).json({msg:'err'})
+                    } else {
+                        res.status(200).json({documentos:result})
+                    }
+                })
+            }
+        })
+    } else {
+        console.log(`El token de acceso no es válido: ${token}`)
+        res.status(403).json({msg:'No autorizado'})
+    }
+})
+
 function procesar_departamento(departamento, padre) {
     if (departamento.constructor === Array){
         departamento.forEach( dep => {

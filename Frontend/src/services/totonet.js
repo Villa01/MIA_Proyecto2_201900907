@@ -144,6 +144,15 @@ export async function getExpedientesRevisor(data){
     })
 }
 
+export async function getDocumentosExpediente(data){
+    return await axios.post(`${urlApi}documentosExpediente`, data,
+    {
+        headers: {
+            'authorization': document.cookie.replace('access_token=', '')
+        }
+    })
+}
+
 export async function setExtadoExpediente(data){
     return await axios.post(`${urlApi}setEstadoExpediente`, data,
     {
