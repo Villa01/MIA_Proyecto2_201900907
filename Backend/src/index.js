@@ -1064,7 +1064,7 @@ app.post('/enviarExpediente', (req, res) => {
             } else {
                 const { cui } = req.body
                 
-                let consulta_docs_rechazados = `select distinct re.detalle, r.nombre_requisito, e.codigo_expediente from mia.requisito_expendiente re
+                let consulta_docs_rechazados = `select distinct re.detalle, re.aceptado, r.nombre_requisito, e.codigo_expediente from mia.requisito_expendiente re
                 inner join mia.requisito r on r.codigo_requisito = re.codigo_requisito
                 inner join mia.expediente e on e.codigo_expediente = re.codigo_expediente
                 inner join mia.aplicante a on e.codigo_aplicante = a.codigo_aplicante
@@ -1093,8 +1093,10 @@ app.post('/enviarExpediente', (req, res) => {
                             let textoCorreo = `Estimado aplicante, lamentamos informarle que algunos de sus requisitos fueron rechazados por el equipo de seleccíón de personal.
                             Le solicitamos corregir los siguientes requisitos en nuestra plataforma: \n`
                             result.forEach(requisito => {
-                                let { detalle, nombre_requisito } = requisito
-                                textoCorreo += `${nombre_requisito} rechazado por : ${detalle}\n`
+                                let { detalle, nombre_requisito, aceptado } = requisito
+                                if(aceptado === 0){
+                                    textoCorreo += `${nombre_requisito} rechazado por : ${detalle}\n`
+                                }
                             })
                             textoCorreo += `Agradecemos su colaboracíón`
 
