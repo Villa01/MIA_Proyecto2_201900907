@@ -2,10 +2,11 @@ import React, { Component } from "react";
 
 import Navbar from "components/Navbars/AuthNavbar.js";
 import Footer from "components/Footers/Footer.js";
-import RevisionExpediente from "components/Utiles/RevisionExpediente";
+import EnvioExpediente from "components/Utiles/EnvioExpediente";
 import { autenticacion } from "services/totonet";
 import { obtenerNuevoToken } from "services/totonet";
 import { getEstadoExpediente } from "services/totonet";
+import RevisionExpediente from "components/Utiles/RevisionExpediente";
 
 class AplicantePage extends Component {
 
@@ -85,15 +86,30 @@ class AplicantePage extends Component {
                       </div>
                     </div>
                   </div>
-                <div>
-                  
-                {
-                  this.state.mostrarEnviarExpediente && (
-                    <RevisionExpediente
-                      cui = {this.state.cui}
-                    ></RevisionExpediente>
-                  )
-                }
+                  <div >
+                    <div>
+                      {
+                        this.state.mostrarEnviarExpediente && (
+                          <EnvioExpediente
+                            cui = {this.state.cui}
+                          ></EnvioExpediente>
+                        )
+                      }
+                    </div>
+
+                    <div 
+                    style = {{
+                      minHeight:"1000px"
+                    }}
+                    >
+                      {
+                        !this.state.mostrarEnviarExpediente && (
+                          <RevisionExpediente
+                            cui = {this.state.cui}
+                          ></RevisionExpediente>
+                        )
+                      }
+                    </div>
                 </div>
                 </div>
               </div>

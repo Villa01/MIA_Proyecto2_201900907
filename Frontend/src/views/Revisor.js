@@ -7,6 +7,7 @@ import Aplicante from "components/Utiles/Aplicante";
 import { aplicantes } from "services/totonet";
 import { obtenerNuevoToken } from "services/totonet";
 import BuscarAplicante from "components/Utiles/BuscarAplicante";
+import RevisorExpediente from "components/Utiles/RevisorExpedientes";
 
 class Revisor extends Component {
 
@@ -22,6 +23,7 @@ class Revisor extends Component {
     autenticacion(document.cookie.replace('access_token=', '')).then(res => {
       //alert(`Tokens autenticados para ${res.data.usuario}`)
         this.setState({nombre: res.data.usuario})
+        window.localStorage.setItem('usuarioRevisor', res.data.usuario)
         
         aplicantes(this.state.nombre).then(resp => {
           this.setState({aplicantes: resp.data.aplicantes})
@@ -126,14 +128,20 @@ class Revisor extends Component {
                     
                     </div>
                     <BuscarAplicante
+                      
                       usuario = {this.state.nombre}
                     ></BuscarAplicante>
 
-                    <br></br>
-                    <br></br>
-                    <br></br>
+                  </div>
+                  <div>
+                    <RevisorExpediente
+                      usuario = {this.state.nombre}
+                    ></RevisorExpediente>
                   </div>
                   
+                  <br></br>
+                  <br></br>
+                  <br></br>
 
                 </div>
               </div>

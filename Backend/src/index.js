@@ -914,6 +914,48 @@ app.post('/modificarestado', (req, res)=> {
     }
 })
 
+
+app.post('/getExpedienteAplicantesRevisor', (req, res)=>{
+    const token = req.headers['authorization']
+    if (token) {
+        jwt.verify(token, access_key, (err, user) => {
+            if(err){
+                console.log(`El token de acceso no es válido: ${token}`)
+                res.status(403).json({msg:'No autorizado'})
+            } else {
+                
+                const { usuario, parametro, campo } = req.body
+                
+                let qu = `select p.nombre_puesto, e.estado, a.nombre, a.apellido, a.correo, a.direccion, a.fecha_aplicacion, a.cui, a.telefono, a.cv from mia.expediente e 
+                inner join mia.aplicante a on e.codigo_aplicante = a.codigo_aplicante
+                left join mia.puesto_aplicante pa on a.codigo_aplicante = pa.codigo_aplicante
+                inner join mia.puesto p on pa.codigo_puesto = p.codigo_puesto
+                where a.nombre_usuario like '%${usuario}%';`
+
+                if (parametro && campo){
+                    qu = `select p.nombre_puesto, e.estado, a.nombre, a.apellido, a.correo, a.direccion, a.fecha_aplicacion, a.cui, a.telefono, a.cv from mia.expediente e 
+                    inner join mia.aplicante a on e.codigo_aplicante = a.codigo_aplicante
+                    left join mia.puesto_aplicante pa on a.codigo_aplicante = pa.codigo_aplicante
+                    inner join mia.puesto p on pa.codigo_puesto = p.codigo_puesto
+                    where a.nombre_usuario like '%${usuario}%' and
+                    ${campo} like '%${parametro}%';`
+                }
+                connection.query(qu, (err, result) => {
+                    if(err) {
+                        console.log(err)
+                        res.status(500).json({msg:'err'})
+                    } else {
+                        res.status(200).json({expedientes:result})
+                    }
+                })
+            }
+        })
+    } else {
+        console.log(`El token de acceso no es válido: ${token}`)
+        res.status(403).json({msg:'No autorizado'})
+    }
+})
+
 function procesar_departamento(departamento, padre) {
     if (departamento.constructor === Array){
         departamento.forEach( dep => {

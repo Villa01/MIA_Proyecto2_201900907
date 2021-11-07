@@ -134,6 +134,16 @@ export async function filtroAplicantes(data){
     })
 }
 
+
+export async function getExpedientesRevisor(data){
+    return await axios.post(`${urlApi}getExpedienteAplicantesRevisor`, data,
+    {
+        headers: {
+            'authorization': document.cookie.replace('access_token=', '')
+        }
+    })
+}
+
 export async function setExtadoExpediente(data){
     return await axios.post(`${urlApi}setEstadoExpediente`, data,
     {
