@@ -968,7 +968,7 @@ app.post('/documentosExpediente', (req, res)=>{
                 
                 const { cui } = req.body
                 
-                let qu = `select re.documento, r.nombre_requisito, concat('.',group_concat(distinct rf2.nombre_formato separator ',.')) formatos from mia.formato f, mia.expediente e
+                let qu = `select re.documento, r.nombre_requisito, r.codigo_requisito, e.codigo_expediente , concat('.',group_concat(distinct rf2.nombre_formato separator ',.')) formatos from mia.formato f, mia.expediente e
                 inner join mia.aplicante a on e.codigo_aplicante = a.codigo_aplicante
                 inner join mia.requisito_expendiente re on e.codigo_expediente = re.codigo_expediente
                 inner join mia.requisito r on re.codigo_requisito = r.codigo_requisito
@@ -982,6 +982,134 @@ app.post('/documentosExpediente', (req, res)=>{
                         res.status(500).json({msg:'err'})
                     } else {
                         res.status(200).json({documentos:result})
+                    }
+                })
+            }
+        })
+    } else {
+        console.log(`El token de acceso no es válido: ${token}`)
+        res.status(403).json({msg:'No autorizado'})
+    }
+})
+
+app.post('/rechazarRequisito', (req, res)=>{
+    const token = req.headers['authorization']
+    if (token) {
+        jwt.verify(token, access_key, (err, user) => {
+            if(err){
+                console.log(`El token de acceso no es válido: ${token}`)
+                res.status(403).json({msg:'No autorizado'})
+            } else {
+                
+                const { codigo_requisito, codigo_expediente, detalle } = req.body
+                
+                let qu = `update mia.requisito_expendiente re set re.detalle = '${detalle}', re.aceptado = false
+                where re.codigo_requisito = ${codigo_requisito} and
+                re.codigo_expediente = ${codigo_expediente};`
+
+                connection.query(qu, (err) => {
+                    if(err) {
+                        console.log(err)
+                        res.status(500).json({msg:'err'})
+                    } else {
+                        res.status(200).json({msg:'Documento rechazado'})
+                    }
+                })
+            }
+        })
+    } else {
+        console.log(`El token de acceso no es válido: ${token}`)
+        res.status(403).json({msg:'No autorizado'})
+    }
+})
+
+app.post('/aceptarRequisito', (req, res)=>{
+    const token = req.headers['authorization']
+    if (token) {
+        jwt.verify(token, access_key, (err, user) => {
+            if(err){
+                console.log(`El token de acceso no es válido: ${token}`)
+                res.status(403).json({msg:'No autorizado'})
+            } else {
+                
+                const { codigo_requisito, codigo_expediente, detalle } = req.body
+                
+                let qu = `update mia.requisito_expendiente re set re.aceptado = true
+                where re.codigo_requisito = ${codigo_requisito} and
+                re.codigo_expediente = ${codigo_expediente};`
+                console.log(qu)
+                connection.query(qu, (err) => {
+                    if(err) {
+                        console.log(err)
+                        res.status(500).json({msg:'err'})
+                    } else {
+                        res.status(200).json({msg:'Documento aceptado'})
+                    }
+                })
+            }
+        })
+    } else {
+        console.log(`El token de acceso no es válido: ${token}`)
+        res.status(403).json({msg:'No autorizado'})
+    }
+})
+
+app.post('/enviarExpediente', (req, res) => {
+    const token = req.headers['authorization']
+    if (token) {
+        jwt.verify(token, access_key, (err, user) => {
+            if(err){
+                console.log(`El token de acceso no es válido: ${token}`)
+                res.status(403).json({msg:'No autorizado'})
+            } else {
+                const { cui } = req.body
+                
+                let consulta_docs_rechazados = `select distinct re.detalle, r.nombre_requisito, e.codigo_expediente from mia.requisito_expendiente re
+                inner join mia.requisito r on r.codigo_requisito = re.codigo_requisito
+                inner join mia.expediente e on e.codigo_expediente = re.codigo_expediente
+                inner join mia.aplicante a on e.codigo_aplicante = a.codigo_aplicante
+                where a.cui = ${cui};`
+
+                connection.query(consulta_docs_rechazados, (err, result ) => {
+                    if (err){
+                        res.status(500).json({msg:'Problema en encontrar los datos'})
+                    } else {
+                        if (result.length == 0){
+                            // Todos los documentos han sido aceptados
+                            let consulta_aceptar_expediente = `update mia.expediente e set e.estado = 'aceptado' where re.codigo_expediente = (
+                                select e.codigo_expediente from mia.expediente e 
+                                inner join mia.aplicante a on a.codigo_aplicante = e.codigo_aplicante
+                                where a.cui = ${cui} limit 1
+                            );`
+                            connection.query(consulta_aceptar_expediente, (err, result) => {
+                                if(err){
+                                    res.status(500).json({msg: 'No se pudo aceptar el expediente'})
+                                } else {
+                                    res.status(200).json({msg: 'Expediente aceptado'})
+                                }
+                            })
+                        } else {
+                            // Requisitos rechazados
+                            let textoCorreo = `Estimado aplicante, lamentamos informarle que algunos de sus requisitos fueron rechazados por el equipo de seleccíón de personal.
+                            Le solicitamos corregir los siguientes requisitos en nuestra plataforma: \n`
+                            result.forEach(requisito => {
+                                let { detalle, nombre_requisito } = requisito
+                                textoCorreo += `${nombre_requisito} rechazado por : ${detalle}\n`
+                            })
+                            textoCorreo += `Agradecemos su colaboracíón`
+
+                            consulta_correo = `select a.correo from mia.aplicante a
+                            where a.cui = ${cui} limit 1;`
+
+                            connection.query(consulta_correo, (err, result)=>{
+                                if (err){
+                                    res.status(500).json({msg: 'No se encontró el correo.'})
+                                } else {
+                                    let { correo } = result[0]
+                                    enviarCorreo(correo, 'Seguimiento de expediente', textoCorreo)
+                                }
+                            })
+                        }
                     }
                 })
             }

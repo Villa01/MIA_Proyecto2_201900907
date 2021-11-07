@@ -125,8 +125,37 @@ export async function aplicantes(usuario){
 }
 
 
+export async function rechazarRequisito(data){
+    return await axios.post(`${urlApi}rechazarRequisito`, data,
+    {
+        headers: {
+            'authorization': document.cookie.replace('access_token=', '')
+        }
+    })
+}
+
+export async function aceptarRequisito(data){
+    return await axios.post(`${urlApi}aceptarRequisito`, data,
+    {
+        headers: {
+            'authorization': document.cookie.replace('access_token=', '')
+        }
+    })
+}
+
+
 export async function filtroAplicantes(data){
     return await axios.post(`${urlApi}filtroaplicantes`, data,
+    {
+        headers: {
+            'authorization': document.cookie.replace('access_token=', '')
+        }
+    })
+}
+
+
+export async function enviarExpedienteService(data){
+    return await axios.post(`${urlApi}enviarExpediente`, data,
     {
         headers: {
             'authorization': document.cookie.replace('access_token=', '')
